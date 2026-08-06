@@ -32,11 +32,10 @@ function setupLixiPreview() {
   if (!zone || !pair || !boards) return;
 
   let copyTimer = 0;
-  const keys = ["groom", "bride"];
-
-  function boardEl(key) {
-    return document.getElementById(key === "bride" ? "lixi-board-bride" : "lixi-board-groom");
-  }
+  const boardNodes = [
+    document.getElementById("lixi-board-groom"),
+    document.getElementById("lixi-board-bride"),
+  ].filter(Boolean);
 
   function isOpen() {
     return zone.classList.contains("has-preview");
@@ -52,35 +51,32 @@ function setupLixiPreview() {
   }
 
   function openBoth() {
-    keys.forEach((key) => {
-      const board = boardEl(key);
-      if (!board) return;
+    boardNodes.forEach((board) => {
       board.hidden = false;
+      board.removeAttribute("hidden");
+      board.setAttribute("aria-hidden", "false");
+      board.classList.add("is-open");
     });
-    requestAnimationFrame(() => {
-      keys.forEach((key) => {
-        const board = boardEl(key);
-        if (board) board.classList.add("is-open");
-      });
-      zone.classList.add("has-preview", "has-preview-bride", "has-preview-groom");
-      boards.classList.add("has-open");
-      syncButtons(true);
-    });
+    zone.classList.add("has-preview");
+    boards.classList.add("has-open");
+    syncButtons(true);
   }
 
   function closeBoth() {
-    keys.forEach((key) => {
-      const board = boardEl(key);
-      if (board) board.classList.remove("is-open");
+    boardNodes.forEach((board) => {
+      board.classList.remove("is-open");
+      board.setAttribute("aria-hidden", "true");
     });
-    zone.classList.remove("has-preview", "has-preview-bride", "has-preview-groom");
+    zone.classList.remove("has-preview");
     boards.classList.remove("has-open");
     syncButtons(false);
     window.setTimeout(() => {
       if (isOpen()) return;
-      keys.forEach((key) => {
-        const board = boardEl(key);
-        if (board && !board.classList.contains("is-open")) board.hidden = true;
+      boardNodes.forEach((board) => {
+        if (!board.classList.contains("is-open")) {
+          board.hidden = true;
+          board.setAttribute("hidden", "");
+        }
       });
     }, 240);
   }
@@ -107,7 +103,9 @@ function setupLixiPreview() {
   });
 
   boards.querySelectorAll("[data-copy]").forEach((btn) => {
-    btn.addEventListener("click", async () => {
+    btn.addEventListener("click", async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
       const value = btn.getAttribute("data-copy") || "";
       if (!value || !copiedEl) return;
       try {
@@ -132,6 +130,7 @@ function setupLixiPreview() {
       if (!href) return;
       try {
         e.preventDefault();
+        e.stopPropagation();
         const res = await fetch(href);
         if (!res.ok) throw new Error("fetch fail");
         const blob = await res.blob();
@@ -517,7 +516,8 @@ function setupBackgroundScroll() {
   const track = document.getElementById("invite-bg-track");
   if (!track) return;
 
-  const shell = track.parentElement;
+  const bgShell = track.parentElement;
+  const mainShell = document.querySelector(".invite-shell");
   const img = track.querySelector("img");
   let ticking = false;
   const BG_RATIO = 1024 / 512; // background.png
@@ -535,7 +535,6 @@ function setupBackgroundScroll() {
 
   lockScrollTop();
 
-  // Dùng layout viewport — ổn định hơn visualViewport trên iPhone
   function viewHeight() {
     return document.documentElement.clientHeight || window.innerHeight || 1;
   }
@@ -551,44 +550,51 @@ function setupBackgroundScroll() {
     return Math.max(1, scrollH - viewHeight());
   }
 
+  /** Khớp đúng bề ngang cột thiệp — tránh nền lệch trái/phải */
   function columnWidth() {
-    return (shell && shell.clientWidth) || track.clientWidth || window.innerWidth || 1;
+    if (mainShell && mainShell.clientWidth > 0) return mainShell.clientWidth;
+    if (bgShell && bgShell.clientWidth > 0) return bgShell.clientWidth;
+    return window.innerWidth || 1;
   }
 
-  // Lệch nền ~18px xuống cho khớp mắt; phần hở đỉnh (nếu có) cùng màu đỉnh ảnh
-  const yShift = 18;
+  function syncBgShellBox() {
+    if (!bgShell || !mainShell) return;
+    const rect = mainShell.getBoundingClientRect();
+    const w = Math.max(1, Math.round(rect.width));
+    bgShell.style.left = `${Math.round(rect.left)}px`;
+    bgShell.style.width = `${w}px`;
+    bgShell.style.transform = "none";
+    bgShell.style.marginLeft = "0";
+    bgShell.style.right = "auto";
+  }
 
   /**
-   * Cỡ ảnh nền: giữ tỉ lệ 1:2.
-   * Mobile hẹp → ảnh thấp hơn màn → phóng đều (không méo) cho cao >= viewport,
-   * rồi căn giữa ngang. Desktop rộng thì chiều cao dư → cuộn dần như máy tính.
+   * Luôn giữ width = cột thiệp (không phóng ngang).
+   * Thiếu chiều cao thì kéo dài ảnh theo chiều dọc + object-fit cover.
    */
   function layoutBg() {
-    if (!img || !shell) return { viewH: viewHeight(), bgH: viewHeight() };
+    if (!img || !bgShell) return { viewH: viewHeight(), bgH: viewHeight() };
+
+    syncBgShellBox();
 
     const viewH = viewHeight();
     const colW = columnWidth();
-    let drawW = colW;
     let drawH = colW * BG_RATIO;
+    if (drawH < viewH) drawH = viewH;
 
-    // Cao tối thiểu = viewport + yShift để đẩy xuống vẫn phủ đáy màn
-    const minH = viewH + yShift;
-    if (drawH < minH) {
-      drawH = minH;
-      drawW = minH / BG_RATIO;
-    }
-
-    img.style.width = `${drawW}px`;
+    img.style.width = "100%";
     img.style.height = `${drawH}px`;
     img.style.maxWidth = "none";
     img.style.minHeight = "0";
-    img.style.objectFit = "fill";
+    img.style.objectFit = "cover";
+    img.style.objectPosition = "center top";
     img.style.display = "block";
 
-    track.style.width = `${drawW}px`;
+    track.style.width = "100%";
     track.style.height = `${drawH}px`;
-    track.style.left = "50%";
-    track.style.marginLeft = `${(-drawW / 2).toFixed(2)}px`;
+    track.style.left = "0";
+    track.style.right = "0";
+    track.style.marginLeft = "0";
     track.style.top = "0";
 
     return { viewH, bgH: drawH };
@@ -600,7 +606,6 @@ function setupBackgroundScroll() {
     if (document.body.classList.contains("invite-locked")) {
       lockScrollTop();
       layoutBg();
-      // Khóa: neo đỉnh ảnh — tránh dải hồng hở trên Android
       track.style.transform = "translate3d(0, 0, 0)";
       return;
     }
@@ -610,8 +615,7 @@ function setupBackgroundScroll() {
     const maxScroll = maxPageScroll();
     const scrollY = Math.min(Math.max(0, pageScrollY()), maxScroll);
     const progress = maxScroll <= 1 ? 0 : Math.min(1, scrollY / maxScroll);
-    // Đẩy xuống lúc đầu; cuối trang về 0 để neo đúng đáy (không hở dưới)
-    const y = -progress * excess + yShift * (1 - progress);
+    const y = -progress * excess;
     track.style.transform = `translate3d(0, ${y.toFixed(2)}px, 0)`;
   }
 
@@ -631,32 +635,27 @@ function setupBackgroundScroll() {
 
   window.addEventListener("scroll", requestUpdate, { passive: true });
   window.addEventListener("resize", forceUpdateSoon);
-  window.addEventListener("orientationchange", () => {
-    setTimeout(forceUpdateSoon, 100);
-    setTimeout(forceUpdateSoon, 400);
-  });
-  window.addEventListener("pageshow", () => {
-    lockScrollTop();
-    forceUpdateSoon();
-  });
+  window.addEventListener("orientationchange", forceUpdateSoon);
   window.addEventListener("load", forceUpdateSoon);
-
-  // Chỉ layout lại khi thanh địa chỉ iOS đổi — không dùng vv.height để tính y
   if (window.visualViewport) {
     window.visualViewport.addEventListener("resize", forceUpdateSoon);
+    window.visualViewport.addEventListener("scroll", forceUpdateSoon);
   }
 
   if (img) {
     if (img.complete) forceUpdateSoon();
-    else {
-      img.addEventListener("load", forceUpdateSoon, { once: true });
-      if (typeof img.decode === "function") {
-        img.decode().then(forceUpdateSoon).catch(() => {});
-      }
-    }
-  } else {
-    forceUpdateSoon();
+    else img.addEventListener("load", forceUpdateSoon, { once: true });
   }
+
+  const unlockMo = new MutationObserver(forceUpdateSoon);
+  unlockMo.observe(document.body, { attributes: true, attributeFilter: ["class"] });
+
+  forceUpdateSoon();
+
+  window.addEventListener("pageshow", () => {
+    lockScrollTop();
+    forceUpdateSoon();
+  });
 
   if (document.fonts && document.fonts.ready) {
     document.fonts.ready.then(forceUpdateSoon);
@@ -668,13 +667,11 @@ function setupBackgroundScroll() {
     mo.observe(home, { attributes: true, attributeFilter: ["class"] });
   }
 
-  const bodyObserver = new MutationObserver(forceUpdateSoon);
-  bodyObserver.observe(document.body, { attributes: true, attributeFilter: ["class"] });
-
   if (typeof ResizeObserver !== "undefined") {
     const ro = new ResizeObserver(requestUpdate);
     ro.observe(document.documentElement);
-    if (shell) ro.observe(shell);
+    if (mainShell) ro.observe(mainShell);
+    if (bgShell) ro.observe(bgShell);
   }
 }
 
