@@ -854,9 +854,12 @@
         /* Invite envelope overlay */
         @keyframes ambient-fall {
             0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; }
-            5% { opacity: 0.85; }
-            90% { opacity: 0.6; }
-            100% { transform: translateY(110vh) translateX(var(--sway, 10px)) rotate(25deg); opacity: 0; }
+            8% { opacity: 0.75; }
+            70% { opacity: 0.45; }
+            100% {
+                transform: translateY(var(--fall, 70vh)) translateX(var(--sway, 10px)) rotate(22deg);
+                opacity: 0;
+            }
         }
         @keyframes seal-pulse {
             0%, 100% { transform: translate(-50%, -50%) scale(1); }
@@ -1739,13 +1742,49 @@
 
 
 
-        /* FX: tim bắn + pháo hoa khi mở thiệp */
+        /* FX: chỉ trong cột thẻ chính (khớp nền giữa), không tràn nền trắng */
         .invite-fx {
             position: fixed;
-            inset: 0;
+            top: 0;
+            left: 0;
+            width: min(100%, 480px);
+            height: 100%;
+            height: 100dvh;
             z-index: 80;
             pointer-events: none;
             overflow: hidden;
+        }
+        @media (min-width: 768px) {
+            .invite-fx {
+                width: min(100%, 720px);
+            }
+        }
+        /* Tim + 囍 rơi ambient (trước và lúc mở thiệp) */
+        .fx-fall {
+            position: absolute;
+            top: -8%;
+            left: 0;
+            font-size: var(--size, 16px);
+            color: var(--c, #C98989);
+            line-height: 1;
+            opacity: 0;
+            pointer-events: none;
+            animation: ambient-fall var(--dur, 7s) linear forwards;
+            text-shadow: 0 2px 8px rgba(184, 116, 116, 0.28);
+            will-change: transform, opacity;
+            z-index: 1;
+        }
+        .fx-fall-hi {
+            font-family: "Bona Nova SC", "Noto Serif SC", serif;
+            font-weight: 700;
+            letter-spacing: 0;
+            color: var(--c, #B87474);
+            text-shadow:
+                0 1px 0 rgba(255, 255, 255, 0.35),
+                0 3px 10px rgba(139, 74, 74, 0.28);
+        }
+        .fx-fall-heart {
+            font-weight: 400;
         }
         .fx-heart {
             position: absolute;
@@ -1759,6 +1798,15 @@
             animation: fx-heart-shot var(--dur, 1.4s) cubic-bezier(0.2, 0.75, 0.2, 1) forwards;
             text-shadow: 0 2px 6px rgba(184, 116, 116, 0.35);
             will-change: transform, opacity;
+            z-index: 2;
+        }
+        .fx-hi-shot {
+            font-family: "Bona Nova SC", "Noto Serif SC", serif;
+            font-weight: 700;
+            letter-spacing: 0;
+            text-shadow:
+                0 1px 0 rgba(255, 255, 255, 0.35),
+                0 3px 10px rgba(139, 74, 74, 0.28);
         }
         @keyframes fx-heart-shot {
             0% {

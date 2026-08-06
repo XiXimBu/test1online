@@ -16,10 +16,11 @@ document.addEventListener("DOMContentLoaded", () => {
   setupSectionTitleFade();
   setupScheduleTimeline();
   setupClosingCouple();
+  setupMusicToggle();
   setupInviteEnvelope();
   setupBackgroundScroll();
+  setupAmbientFall();
   setupAlbumCarousel();
-  setupMusicToggle();
   setupLixiPreview();
 });
 
@@ -208,6 +209,23 @@ function setupMusicToggle() {
     btn.title = on ? "Tắt nhạc" : "Bật nhạc";
   }
 
+  async function startMusic() {
+    if (!hasMusic()) return false;
+    if (!audio.paused) {
+      setPlaying(true);
+      return true;
+    }
+    try {
+      await audio.play();
+      setPlaying(true);
+      return true;
+    } catch (err) {
+      setPlaying(false);
+      console.warn("Không phát được nhạc:", err);
+      return false;
+    }
+  }
+
   async function toggleMusic() {
     if (!hasMusic()) {
       console.info("Chưa có link nhạc. Thêm <source src=\"...\"> vào #invite-music.");
@@ -216,8 +234,7 @@ function setupMusicToggle() {
 
     try {
       if (audio.paused) {
-        await audio.play();
-        setPlaying(true);
+        await startMusic();
       } else {
         audio.pause();
         setPlaying(false);
@@ -227,6 +244,9 @@ function setupMusicToggle() {
       console.warn("Không phát được nhạc:", err);
     }
   }
+
+  // Cho openInvite gọi — phải nằm trong cử chỉ chạm/click của user
+  window.__inviteStartMusic = startMusic;
 
   btn.addEventListener("click", toggleMusic);
   audio.addEventListener("ended", () => setPlaying(false));
@@ -557,15 +577,20 @@ function setupBackgroundScroll() {
     return window.innerWidth || 1;
   }
 
-  function syncBgShellBox() {
-    if (!bgShell || !mainShell) return;
+  function syncColumnBox(el) {
+    if (!el || !mainShell) return;
     const rect = mainShell.getBoundingClientRect();
     const w = Math.max(1, Math.round(rect.width));
-    bgShell.style.left = `${Math.round(rect.left)}px`;
-    bgShell.style.width = `${w}px`;
-    bgShell.style.transform = "none";
-    bgShell.style.marginLeft = "0";
-    bgShell.style.right = "auto";
+    el.style.left = `${Math.round(rect.left)}px`;
+    el.style.width = `${w}px`;
+    el.style.transform = "none";
+    el.style.marginLeft = "0";
+    el.style.right = "auto";
+  }
+
+  function syncBgShellBox() {
+    syncColumnBox(bgShell);
+    syncColumnBox(document.getElementById("invite-fx"));
   }
 
   /**
@@ -702,6 +727,13 @@ function setupInviteEnvelope() {
     if (closedImg) closedImg.classList.remove("is-active");
 
     home.classList.add("is-opening");
+    // Phát nhạc ngay trong cử chỉ bấm mở thiệp (trình duyệt cho phép autoplay)
+    if (typeof window.__inviteStartMusic === "function") {
+      window.__inviteStartMusic();
+    }
+    if (typeof window.__inviteBoostFall === "function") {
+      window.__inviteBoostFall();
+    }
     playOpenEffects();
 
     setTimeout(() => {
@@ -747,8 +779,14 @@ function playOpenEffects() {
   const layer = document.getElementById("invite-fx");
   if (!layer) return;
 
-  const origin = getEnvelopeOrigin();
-  shootHearts(layer, origin);
+  const origin = getEnvelopeOrigin(layer);
+  shootHearts(layer, origin, { count: 22, includeHi: true });
+  // Mưa nhẹ lúc mở (ít hơn ambient thường)
+  for (let i = 0; i < 5; i++) {
+    setTimeout(() => {
+      if (typeof window.__inviteSpawnFall === "function") window.__inviteSpawnFall();
+    }, 60 + i * 140);
+  }
   setTimeout(() => launchFireworks(layer, origin), 180);
   setTimeout(() => launchFireworks(layer, {
     x: origin.x + (Math.random() * 80 - 40),
@@ -760,39 +798,200 @@ function playOpenEffects() {
   }), 860);
 }
 
-function getEnvelopeOrigin() {
-  const stage = document.getElementById("envelope-stage") || document.getElementById("open-invite-btn");
-  if (!stage) {
-    return { x: window.innerWidth / 2, y: window.innerHeight * 0.45 };
+/** Mưa trái tim + 囍 — chỉ trong cột thẻ; khi thiệp đóng phải luôn chạy */
+function setupAmbientFall() {
+  const layer = document.getElementById("invite-fx");
+  const stopAt = document.getElementById("wedding-info-section");
+  const home = document.getElementById("home");
+  const mainShell = document.querySelector(".invite-shell");
+  if (!layer) return;
+
+  const heartColors = ["#C98989", "#B87474", "#E8A0A0", "#D4A0A0", "#F5D0D0"];
+  const hiColors = ["#B87474", "#C98989", "#8B4A4A"];
+  let timer = 0;
+  let burstTimer = 0;
+  let allowed = true;
+
+  function syncFxBox() {
+    if (!mainShell) return;
+    const rect = mainShell.getBoundingClientRect();
+    const w = Math.max(1, Math.round(rect.width));
+    layer.style.left = `${Math.round(rect.left)}px`;
+    layer.style.width = `${w}px`;
+    layer.style.right = "auto";
+    layer.style.marginLeft = "0";
+    layer.style.transform = "none";
   }
-  const rect = stage.getBoundingClientRect();
-  return {
-    x: rect.left + rect.width / 2,
-    y: rect.top + rect.height * 0.42,
+
+  function fallDistancePx() {
+    if (document.body.classList.contains("invite-locked") || isStillSealed()) {
+      return Math.round(window.innerHeight * 0.78);
+    }
+    if (!stopAt) return Math.round(window.innerHeight * 0.62);
+    const top = stopAt.getBoundingClientRect().top + window.scrollY;
+    return Math.max(220, Math.min(Math.round(top * 0.92), Math.round(window.innerHeight * 0.75)));
+  }
+
+  function isStillSealed() {
+    return home && home.classList.contains("is-sealed") && home.dataset.opening !== "1";
+  }
+
+  function spawnFall(forceHi) {
+    if (!allowed) return;
+    const el = document.createElement("span");
+    const isHi = forceHi === true ? true : forceHi === false ? false : Math.random() < 0.28;
+    el.className = isHi ? "fx-fall fx-fall-hi" : "fx-fall fx-fall-heart";
+    el.textContent = isHi ? "囍" : "♥";
+    el.style.left = `${6 + Math.random() * 88}%`;
+    el.style.setProperty("--sway", `${(Math.random() * 50 - 25).toFixed(1)}px`);
+    el.style.setProperty("--fall", `${fallDistancePx()}px`);
+    el.style.setProperty(
+      "--size",
+      isHi ? `${16 + Math.random() * 12}px` : `${13 + Math.random() * 14}px`
+    );
+    el.style.setProperty("--dur", `${5.2 + Math.random() * 3}s`);
+    el.style.setProperty(
+      "--c",
+      isHi
+        ? hiColors[Math.floor(Math.random() * hiColors.length)]
+        : heartColors[Math.floor(Math.random() * heartColors.length)]
+    );
+    layer.appendChild(el);
+    el.addEventListener("animationend", () => el.remove(), { once: true });
+  }
+
+  function loop() {
+    if (!allowed) return;
+    spawnFall();
+    if (Math.random() < 0.35) spawnFall();
+    if (Math.random() < 0.28) spawnFall(true);
+    const gap = isStillSealed() ? 380 + Math.random() * 320 : 850 + Math.random() * 700;
+    timer = window.setTimeout(loop, gap);
+  }
+
+  /** Bắn tim + 囍 quanh thiệp khi còn đóng */
+  function sealedBurst() {
+    if (!allowed || !isStillSealed()) return;
+    syncFxBox();
+    const origin = getEnvelopeOrigin(layer);
+    shootHearts(layer, origin, { count: 16, includeHi: true });
+  }
+
+  function sealedBurstLoop() {
+    if (!isStillSealed()) {
+      burstTimer = 0;
+      return;
+    }
+    sealedBurst();
+    burstTimer = window.setTimeout(sealedBurstLoop, 1400 + Math.random() * 900);
+  }
+
+  function setAllowed(on) {
+    allowed = on;
+    if (!on) {
+      window.clearTimeout(timer);
+      timer = 0;
+      layer.querySelectorAll(".fx-fall").forEach((n) => n.remove());
+    } else if (!timer) {
+      loop();
+    }
+  }
+
+  function syncByScroll() {
+    syncFxBox();
+    // Thiệp đóng: section lễ cưới bị display:none → rect = 0; phải luôn cho chạy
+    if (document.body.classList.contains("invite-locked") || isStillSealed()) {
+      if (!allowed) setAllowed(true);
+      return;
+    }
+    if (!stopAt) return;
+    const rect = stopAt.getBoundingClientRect();
+    const shouldRun = rect.top > window.innerHeight * 0.42;
+    if (shouldRun !== allowed) setAllowed(shouldRun);
+  }
+
+  syncFxBox();
+
+  // Xuất hiện sớm + nhiều hơn (~8–9 hạt seed)
+  for (let i = 0; i < 9; i++) {
+    setTimeout(() => spawnFall(i % 3 === 0), i * 90);
+  }
+  loop();
+
+  // Burst ngay gần đầu + lặp khi còn đóng
+  setTimeout(sealedBurst, 120);
+  burstTimer = window.setTimeout(sealedBurstLoop, 1100);
+
+  window.addEventListener("scroll", syncByScroll, { passive: true });
+  window.addEventListener("resize", syncByScroll);
+  syncByScroll();
+
+  if (home) {
+    const mo = new MutationObserver(syncByScroll);
+    mo.observe(home, { attributes: true, attributeFilter: ["class", "data-opening"] });
+  }
+  const bodyMo = new MutationObserver(syncByScroll);
+  bodyMo.observe(document.body, { attributes: true, attributeFilter: ["class"] });
+
+  window.__inviteSpawnFall = spawnFall;
+  window.__inviteBoostFall = function boostFall() {
+    window.clearTimeout(burstTimer);
+    burstTimer = 0;
+    if (!allowed) return;
+    for (let i = 0; i < 10; i++) {
+      setTimeout(() => spawnFall(i % 3 === 0), i * 90);
+    }
   };
 }
 
-function shootHearts(layer, origin) {
+function getEnvelopeOrigin(layer) {
+  const stage = document.getElementById("envelope-stage") || document.getElementById("open-invite-btn");
+  const layerRect = layer ? layer.getBoundingClientRect() : null;
+  if (!stage) {
+    return {
+      x: layerRect ? layerRect.width / 2 : window.innerWidth / 2,
+      y: layerRect ? layerRect.height * 0.45 : window.innerHeight * 0.45,
+    };
+  }
+  const rect = stage.getBoundingClientRect();
+  const ox = layerRect ? layerRect.left : 0;
+  const oy = layerRect ? layerRect.top : 0;
+  return {
+    x: rect.left + rect.width / 2 - ox,
+    y: rect.top + rect.height * 0.42 - oy,
+  };
+}
+
+function shootHearts(layer, origin, opts) {
   const colors = ["#C98989", "#B87474", "#E8A0A0", "#D4A0A0", "#F5D0D0", "#8B4A4A"];
-  const count = 28;
+  const hiColors = ["#B87474", "#C98989", "#8B4A4A"];
+  const count = (opts && opts.count) || 28;
+  const includeHi = !!(opts && opts.includeHi);
 
   for (let i = 0; i < count; i++) {
     const el = document.createElement("span");
-    el.className = "fx-heart";
-    el.textContent = i % 5 === 0 ? "♡" : "♥";
+    const isHi = includeHi && i % 4 === 0;
+    el.className = isHi ? "fx-heart fx-hi-shot" : "fx-heart";
+    el.textContent = isHi ? "囍" : "♥";
 
-    const angle = (-Math.PI / 2) + (Math.random() - 0.5) * Math.PI * 1.35;
-    const dist = 90 + Math.random() * 160;
+    const angle = (-Math.PI / 2) + (Math.random() - 0.5) * Math.PI * 1.2;
+    const dist = 70 + Math.random() * 130;
     const dx = Math.cos(angle) * dist;
-    const dy = Math.sin(angle) * dist - (40 + Math.random() * 80);
+    const dy = Math.sin(angle) * dist - (30 + Math.random() * 70);
 
     el.style.setProperty("--x", `${origin.x}px`);
     el.style.setProperty("--y", `${origin.y}px`);
     el.style.setProperty("--dx", `${dx}px`);
     el.style.setProperty("--dy", `${dy}px`);
-    el.style.setProperty("--rot", `${(Math.random() * 80 - 40).toFixed(1)}deg`);
-    el.style.setProperty("--size", `${14 + Math.random() * 16}px`);
-    el.style.setProperty("--c", colors[i % colors.length]);
+    el.style.setProperty("--rot", `${(Math.random() * 70 - 35).toFixed(1)}deg`);
+    el.style.setProperty(
+      "--size",
+      isHi ? `${16 + Math.random() * 12}px` : `${14 + Math.random() * 14}px`
+    );
+    el.style.setProperty(
+      "--c",
+      isHi ? hiColors[i % hiColors.length] : colors[i % colors.length]
+    );
     el.style.setProperty("--dur", `${1.15 + Math.random() * 0.7}s`);
     el.style.animationDelay = `${Math.random() * 0.22}s`;
 
