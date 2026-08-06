@@ -1944,11 +1944,11 @@
             border: 0;
             background: transparent;
             cursor: pointer;
-            /* drop-shadow lớn dễ “mất” thiệp trên iOS — dùng box nhẹ hơn */
+            /* Không box-shadow/border-radius — PNG trong suốt sẽ lộ hình vuông trắng */
             filter: none;
-            box-shadow: 0 10px 24px rgba(139, 74, 74, 0.18);
-            border-radius: 8px;
-            transition: transform 0.45s cubic-bezier(0.22, 0.85, 0.3, 1), box-shadow 0.35s ease, opacity 0.28s ease;
+            box-shadow: none;
+            border-radius: 0;
+            transition: transform 0.45s cubic-bezier(0.22, 0.85, 0.3, 1), opacity 0.28s ease;
             will-change: transform;
             user-select: none;
             -webkit-user-drag: none;
@@ -1976,13 +1976,11 @@
         .lixi-pair:focus-within .lixi-card.is-left,
         .lixi-card.is-left:focus-visible {
             transform: translateY(-50%) rotate(-7deg) scale(1.03);
-            box-shadow: 0 14px 28px rgba(139, 74, 74, 0.24);
         }
         .lixi-pair:hover .lixi-card.is-right,
         .lixi-pair:focus-within .lixi-card.is-right,
         .lixi-card.is-right:focus-visible {
             transform: translateY(-50%) rotate(7deg) scale(1.03);
-            box-shadow: 0 14px 28px rgba(139, 74, 74, 0.24);
         }
         #lixi-zone.has-preview .lixi-card.is-left,
         #lixi-zone.has-preview .lixi-card.is-right {
@@ -1997,8 +1995,6 @@
             }
             .lixi-card {
                 width: 66%;
-                filter: drop-shadow(0 14px 28px rgba(139, 74, 74, 0.22));
-                box-shadow: none;
             }
             .lixi-card.is-left {
                 transform: translateY(-50%) rotate(-12deg);
@@ -2009,12 +2005,10 @@
             .lixi-pair:hover .lixi-card.is-left,
             .lixi-card.is-left:focus-visible {
                 transform: translateY(-50%) rotate(-8deg) scale(1.04);
-                filter: drop-shadow(0 18px 32px rgba(139, 74, 74, 0.28));
             }
             .lixi-pair:hover .lixi-card.is-right,
             .lixi-card.is-right:focus-visible {
                 transform: translateY(-50%) rotate(8deg) scale(1.04);
-                filter: drop-shadow(0 18px 32px rgba(139, 74, 74, 0.28));
             }
         }
 
@@ -2421,13 +2415,13 @@
 /* Sổ lưu bút — khung form theo đúng tỉ lệ luubut.png */
 .guestbook-luubut {
   position: relative;
-  width: min(100%, 440px);
+  width: min(100%, 380px);
   margin-left: auto;
   margin-right: auto;
-  margin-top: -6px;
+  margin-top: -4px;
   aspect-ratio: 1332 / 1181;
   z-index: 1;
-  overflow: hidden; /* tránh form tràn che section dưới (iPhone) */
+  overflow: hidden;
 }
 .guestbook-luubut-bg {
   position: absolute;
@@ -2444,17 +2438,15 @@
 .guestbook-luubut-panel {
   position: absolute;
   z-index: 1;
-  /* Theo % vùng giấy — không cộng px cố định (mobile dễ tràn) */
-  top: 22%;
-  left: 13%;
-  right: 13%;
-  bottom: 16%;
+  top: 21%;
+  left: 12%;
+  right: 12%;
+  bottom: 15%;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+  justify-content: center;
   min-height: 0;
   overflow: hidden;
-  padding-top: 2%;
   box-sizing: border-box;
 }
 .guestbook-luubut-form {
@@ -2464,63 +2456,69 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 0.55rem;
+  gap: 0.5rem !important;
 }
 .guestbook-luubut-form .invite-field {
-  background-color: rgba(255, 252, 250, 0.55);
-  border-color: rgba(201, 137, 137, 0.35);
-  box-shadow: none;
+  background-color: rgba(255, 252, 250, 0.55) !important;
+  border-color: rgba(201, 137, 137, 0.35) !important;
+  box-shadow: none !important;
   flex-shrink: 0;
-}
-.guestbook-luubut-form #guestbook-name {
-  padding: 0.55rem 0.75rem;
-  font-size: 13px;
+  padding: 0.5rem 0.7rem !important;
+  font-size: 13px !important;
+  line-height: 1.35;
 }
 .guestbook-luubut-form #guestbook-message {
   flex: 1 1 auto;
-  min-height: 3.2rem;
-  max-height: none;
-  padding: 0.55rem 0.75rem;
-  font-size: 13px;
+  min-height: 3rem;
+  max-height: 38%;
+  resize: none;
 }
 .guestbook-luubut-form .flex.justify-between {
   flex-shrink: 0;
-  gap: 0.4rem;
+  gap: 0.35rem;
+  margin-top: 0.15rem;
 }
 .guestbook-luubut-form #guestbook-send {
-  padding: 0.55rem 1rem;
-  font-size: 10px;
+  padding: 0.5rem 0.9rem !important;
+  font-size: 10px !important;
+  line-height: 1.2;
+}
+@media (min-width: 480px) {
+  .guestbook-luubut {
+    width: min(100%, 420px);
+  }
 }
 @media (min-width: 768px) {
   .guestbook-luubut {
-    width: min(100%, 520px);
-    margin-top: -10px;
+    width: min(100%, 480px);
+    margin-top: -8px;
   }
   .guestbook-luubut-panel {
-    top: calc(19% + 28px);
+    top: 20%;
     left: 13%;
     right: 13%;
     bottom: 14%;
-    justify-content: center;
-    padding-top: 0;
   }
   .guestbook-luubut-form {
-    gap: 1rem;
+    gap: 0.75rem !important;
   }
-  .guestbook-luubut-form #guestbook-name,
-  .guestbook-luubut-form #guestbook-message {
-    padding: 0.75rem;
-    font-size: 14px;
+  .guestbook-luubut-form .invite-field {
+    padding: 0.7rem 0.85rem !important;
+    font-size: 14px !important;
   }
   .guestbook-luubut-form #guestbook-message {
-    min-height: 4.5rem;
+    min-height: 4rem;
+    max-height: 42%;
   }
   .guestbook-luubut-form #guestbook-send {
-    padding: 0.75rem 2rem;
-    font-size: 12px;
+    padding: 0.65rem 1.5rem !important;
+    font-size: 11px !important;
   }
 }
 @media (max-width: 390px) {
+  .guestbook-luubut {
+    width: min(100%, 340px);
+  }
   .guestbook-luubut-panel {
     top: 20%;
     left: 11%;
@@ -2528,10 +2526,13 @@
     bottom: 14%;
   }
   .guestbook-luubut-form {
-    gap: 0.45rem;
+    gap: 0.4rem !important;
   }
 }
 @media (max-width: 360px) {
+  .guestbook-luubut {
+    width: min(100%, 310px);
+  }
   .guestbook-luubut-panel {
     top: 19%;
     left: 10%;
