@@ -20,7 +20,136 @@ document.addEventListener("DOMContentLoaded", () => {
   setupBackgroundScroll();
   setupAlbumCarousel();
   setupMusicToggle();
+  setupLixiPreview();
 });
+
+function setupLixiPreview() {
+  const zone = document.getElementById("lixi-zone");
+  const pair = document.getElementById("lixi-pair");
+  const boards = document.getElementById("lixi-boards");
+  const copiedEl = document.getElementById("lixi-preview-copied");
+  const hint = document.getElementById("lixi-hint");
+  if (!zone || !pair || !boards) return;
+
+  let copyTimer = 0;
+  const keys = ["groom", "bride"];
+
+  function boardEl(key) {
+    return document.getElementById(key === "bride" ? "lixi-board-bride" : "lixi-board-groom");
+  }
+
+  function isOpen() {
+    return zone.classList.contains("has-preview");
+  }
+
+  function syncButtons(open) {
+    pair.querySelectorAll("[data-lixi]").forEach((btn) => {
+      btn.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+    if (hint) {
+      hint.textContent = open ? "Nhấn × để đóng" : "Nhấn bao lì xì để xem QR";
+    }
+  }
+
+  function openBoth() {
+    keys.forEach((key) => {
+      const board = boardEl(key);
+      if (!board) return;
+      board.hidden = false;
+    });
+    requestAnimationFrame(() => {
+      keys.forEach((key) => {
+        const board = boardEl(key);
+        if (board) board.classList.add("is-open");
+      });
+      zone.classList.add("has-preview", "has-preview-bride", "has-preview-groom");
+      boards.classList.add("has-open");
+      syncButtons(true);
+    });
+  }
+
+  function closeBoth() {
+    keys.forEach((key) => {
+      const board = boardEl(key);
+      if (board) board.classList.remove("is-open");
+    });
+    zone.classList.remove("has-preview", "has-preview-bride", "has-preview-groom");
+    boards.classList.remove("has-open");
+    syncButtons(false);
+    window.setTimeout(() => {
+      if (isOpen()) return;
+      keys.forEach((key) => {
+        const board = boardEl(key);
+        if (board && !board.classList.contains("is-open")) board.hidden = true;
+      });
+    }, 240);
+  }
+
+  function toggleBoth() {
+    if (isOpen()) closeBoth();
+    else openBoth();
+  }
+
+  pair.querySelectorAll("[data-lixi]").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleBoth();
+    });
+  });
+
+  boards.querySelectorAll("[data-lixi-close]").forEach((el) => {
+    el.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      closeBoth();
+    });
+  });
+
+  boards.querySelectorAll("[data-copy]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const value = btn.getAttribute("data-copy") || "";
+      if (!value || !copiedEl) return;
+      try {
+        await navigator.clipboard.writeText(value);
+        copiedEl.textContent = "Đã sao chép số tài khoản";
+        copiedEl.hidden = false;
+        window.clearTimeout(copyTimer);
+        copyTimer = window.setTimeout(() => {
+          copiedEl.hidden = true;
+        }, 1800);
+      } catch (_) {
+        copiedEl.textContent = "Không sao chép được — hãy giữ để copy tay";
+        copiedEl.hidden = false;
+      }
+    });
+  });
+
+  boards.querySelectorAll(".lixi-preview-download").forEach((link) => {
+    link.addEventListener("click", async (e) => {
+      const href = link.getAttribute("href");
+      const name = link.getAttribute("download") || "qr.png";
+      if (!href) return;
+      try {
+        e.preventDefault();
+        const res = await fetch(href);
+        if (!res.ok) throw new Error("fetch fail");
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = name;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      } catch (_) {
+        link.setAttribute("target", "_blank");
+        link.setAttribute("rel", "noopener");
+      }
+    });
+  });
+}
 
 function setupMusicToggle() {
   const btn = document.getElementById("music-btn");
@@ -471,8 +600,8 @@ function setupBackgroundScroll() {
     if (document.body.classList.contains("invite-locked")) {
       lockScrollTop();
       layoutBg();
-      // Giữ cùng lệch khi khóa scroll — mở thiệp không bị nhảy nền
-      track.style.transform = `translate3d(0, ${yShift}px, 0)`;
+      // Khóa: neo đỉnh ảnh — tránh dải hồng hở trên Android
+      track.style.transform = "translate3d(0, 0, 0)";
       return;
     }
 
