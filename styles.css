@@ -1785,6 +1785,17 @@
         }
         .fx-fall-heart {
             font-weight: 400;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            filter: drop-shadow(0 2px 6px rgba(184, 116, 116, 0.28));
+            text-shadow: none;
+        }
+        .fx-heart-mark {
+            display: block;
+            width: 1em;
+            height: 1em;
+            overflow: visible;
         }
         .fx-heart {
             position: absolute;
@@ -1793,10 +1804,14 @@
             font-size: var(--size, 18px);
             color: var(--c, #C98989);
             line-height: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             transform: translate(-50%, -50%) scale(0.4);
             opacity: 0;
             animation: fx-heart-shot var(--dur, 1.4s) cubic-bezier(0.2, 0.75, 0.2, 1) forwards;
-            text-shadow: 0 2px 6px rgba(184, 116, 116, 0.35);
+            filter: drop-shadow(0 2px 5px rgba(184, 116, 116, 0.35));
+            text-shadow: none;
             will-change: transform, opacity;
             z-index: 2;
         }

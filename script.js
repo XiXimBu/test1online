@@ -841,7 +841,8 @@ function setupAmbientFall() {
     const el = document.createElement("span");
     const isHi = forceHi === true ? true : forceHi === false ? false : Math.random() < 0.28;
     el.className = isHi ? "fx-fall fx-fall-hi" : "fx-fall fx-fall-heart";
-    el.textContent = isHi ? "囍" : "♥";
+    if (isHi) el.textContent = "囍";
+    else fillHeartMark(el);
     el.style.left = `${6 + Math.random() * 88}%`;
     el.style.setProperty("--sway", `${(Math.random() * 50 - 25).toFixed(1)}px`);
     el.style.setProperty("--fall", `${fallDistancePx()}px`);
@@ -962,6 +963,14 @@ function getEnvelopeOrigin(layer) {
   };
 }
 
+/** Tim SVG — tránh emoji đỏ trên iOS/Android, màu theo CSS currentColor */
+function fillHeartMark(el) {
+  el.innerHTML =
+    '<svg class="fx-heart-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
+    '<path fill="currentColor" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>' +
+    "</svg>";
+}
+
 function shootHearts(layer, origin, opts) {
   const colors = ["#C98989", "#B87474", "#E8A0A0", "#D4A0A0", "#F5D0D0", "#8B4A4A"];
   const hiColors = ["#B87474", "#C98989", "#8B4A4A"];
@@ -972,7 +981,8 @@ function shootHearts(layer, origin, opts) {
     const el = document.createElement("span");
     const isHi = includeHi && i % 4 === 0;
     el.className = isHi ? "fx-heart fx-hi-shot" : "fx-heart";
-    el.textContent = isHi ? "囍" : "♥";
+    if (isHi) el.textContent = "囍";
+    else fillHeartMark(el);
 
     const angle = (-Math.PI / 2) + (Math.random() - 0.5) * Math.PI * 1.2;
     const dist = 70 + Math.random() * 130;
