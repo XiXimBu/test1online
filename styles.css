@@ -95,26 +95,24 @@
             pointer-events: none;
             user-select: none;
             overflow: hidden;
-            background-color: #FFF8F6;
+            /* Khớp màu đỉnh background.png — khi lệch xuống ~18px không lộ viền khác màu */
+            background-color: #f8e8e1;
         }
         .invite-shell-bg-track {
             position: absolute;
-            left: 0;
+            left: 50%;
             top: 0;
             width: 100%;
-            min-height: 100%;
             will-change: transform;
             transform: translate3d(0, 0, 0);
             backface-visibility: hidden;
+            margin-left: 0;
         }
         .invite-shell-bg-track img {
             display: block;
             width: 100%;
             height: auto;
-            min-height: 100%;
             max-width: none;
-            object-fit: cover;
-            object-position: center top;
             pointer-events: none;
             user-select: none;
             -webkit-user-drag: none;
@@ -1214,6 +1212,62 @@
                 font-size: clamp(34px, 8.5vw, 44px);
             }
         }
+        /* Màn ngang / thấp (vd. 987×674): kéo tên lên ~30px kẻo bị khuất đáy khi thiệp chưa mở */
+        @media (min-width: 768px) and (max-height: 720px) {
+            #home.is-sealed .envelope-hint,
+            #home.is-intro:not(.is-opening):not(.is-opened) .envelope-hint,
+            #home.is-intro-done:not(.is-opening):not(.is-opened) .envelope-hint {
+                margin-top: 16px;
+            }
+            #home.is-sealed .envelope-stage,
+            #home.is-intro:not(.is-opening):not(.is-opened) .envelope-stage,
+            #home.is-intro-done:not(.is-opening):not(.is-opened) .envelope-stage {
+                gap: 0.65rem;
+            }
+        }
+        /* Màn thấp hơn nữa (vd. 768×634): kéo cả Save the Date + thiệp + tên lên ~28px */
+        @media (min-width: 768px) and (max-height: 660px) {
+            #home.is-sealed,
+            #home.is-intro:not(.is-opening):not(.is-opened),
+            #home.is-intro-done:not(.is-opening):not(.is-opened) {
+                justify-content: flex-start;
+                padding-top: 0.35rem;
+                padding-bottom: 0.5rem;
+            }
+            #home.is-sealed .envelope-lead,
+            #home.is-intro:not(.is-opening):not(.is-opened) .envelope-lead,
+            #home.is-intro-done:not(.is-opening):not(.is-opened) .envelope-lead {
+                margin-bottom: 0.1rem;
+            }
+            #home.is-sealed .envelope-lead-crown,
+            #home.is-intro:not(.is-opening):not(.is-opened) .envelope-lead-crown,
+            #home.is-intro-done:not(.is-opening):not(.is-opened) .envelope-lead-crown {
+                width: min(28%, 120px);
+                margin-bottom: 0.25rem;
+            }
+            #home.is-sealed .envelope-lead-title,
+            #home.is-intro:not(.is-opening):not(.is-opened) .envelope-lead-title,
+            #home.is-intro-done:not(.is-opening):not(.is-opened) .envelope-lead-title {
+                font-size: clamp(28px, 5.5vw, 34px);
+            }
+            #home.is-sealed .envelope-lead-rule,
+            #home.is-intro:not(.is-opening):not(.is-opened) .envelope-lead-rule,
+            #home.is-intro-done:not(.is-opening):not(.is-opened) .envelope-lead-rule {
+                margin: 0.35rem auto 0.45rem;
+            }
+            #home.is-sealed .envelope-stage,
+            #home.is-intro:not(.is-opening):not(.is-opened) .envelope-stage,
+            #home.is-intro-done:not(.is-opening):not(.is-opened) .envelope-stage {
+                gap: 0.4rem;
+                width: min(54vw, 400px);
+            }
+            #home.is-sealed .envelope-hint,
+            #home.is-intro:not(.is-opening):not(.is-opened) .envelope-hint,
+            #home.is-intro-done:not(.is-opening):not(.is-opened) .envelope-hint {
+                margin-top: 8px;
+                font-size: clamp(28px, 6vw, 36px);
+            }
+        }
         .envelope-hint-groom,
         .envelope-hint-bride,
         .envelope-hint-amp {
@@ -1889,40 +1943,66 @@
         }
 
 /* ===== carousel ===== */
+#album-section {
+  overflow-x: clip;
+  overscroll-behavior-x: none;
+}
+.carousel-perspective {
+  touch-action: pan-y;
+  overscroll-behavior-x: contain;
+  user-select: none;
+  -webkit-user-select: none;
+  isolation: isolate;
+}
+.carousel-perspective.is-swiping {
+  touch-action: none;
+}
 .carousel-item {
-    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease, z-index 0.5s ease;
-    will-change: transform, opacity;
-  }
-  
-  /* Mobile (default) */
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease;
+  will-change: transform, opacity;
+  -webkit-user-drag: none;
+  touch-action: pan-y;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.carousel-item img {
+  pointer-events: none;
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+  /* Mobile (default) — giảm rotateY để ít lệch layout khi vuốt */
   .carousel-item[data-pos="0"] {
-    transform: translateZ(50px) scale(1);
+    transform: translate3d(0, 0, 40px) scale(1);
     opacity: 1;
     z-index: 30;
   }
   .carousel-item[data-pos="-1"] {
-    transform: translateX(-40%) scale(0.85) rotateY(10deg);
-    opacity: 0.6;
+    transform: translate3d(-38%, 0, 0) scale(0.86);
+    opacity: 0.65;
     z-index: 20;
   }
   .carousel-item[data-pos="1"] {
-    transform: translateX(40%) scale(0.85) rotateY(-10deg);
-    opacity: 0.6;
+    transform: translate3d(38%, 0, 0) scale(0.86);
+    opacity: 0.65;
     z-index: 20;
   }
   .carousel-item[data-pos="-2"] {
-    transform: translateX(-70%) scale(0.65) rotateY(15deg);
-    opacity: 0.3;
+    transform: translate3d(-68%, 0, 0) scale(0.68);
+    opacity: 0.35;
     z-index: 10;
   }
   .carousel-item[data-pos="2"] {
-    transform: translateX(70%) scale(0.65) rotateY(-15deg);
-    opacity: 0.3;
+    transform: translate3d(68%, 0, 0) scale(0.68);
+    opacity: 0.35;
     z-index: 10;
   }
-  
+
   /* Desktop */
   @media (min-width: 768px) {
+    .carousel-item[data-pos="0"] {
+      transform: translateZ(50px) scale(1);
+    }
     .carousel-item[data-pos="-1"] {
       transform: translateX(-65%) scale(0.8) rotateY(10deg);
     }
@@ -1936,16 +2016,18 @@
       transform: translateX(110%) scale(0.6) rotateY(-15deg);
     }
   }
-  
+
   .carousel-item[data-pos="hidden-left"] {
-    transform: translateX(-150%) scale(0.4);
+    transform: translate3d(-150%, 0, 0) scale(0.4);
     opacity: 0;
     z-index: 0;
+    pointer-events: none;
   }
   .carousel-item[data-pos="hidden-right"] {
-    transform: translateX(150%) scale(0.4);
+    transform: translate3d(150%, 0, 0) scale(0.4);
     opacity: 0;
     z-index: 0;
+    pointer-events: none;
   }
 
 /* ===== scrollbar ===== */

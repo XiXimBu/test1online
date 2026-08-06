@@ -232,14 +232,18 @@ function setupClosingCouple() {
 }
 
 function setupAlbumCarousel() {
-  const items = document.querySelectorAll(".carousel-item");
+  const items = Array.from(document.querySelectorAll(".carousel-item"));
   const prevBtn = document.getElementById("carousel-prev");
   const nextBtn = document.getElementById("carousel-next");
   const paginationDots = document.querySelectorAll("#carousel-pagination div");
+  const carouselContainer = document.querySelector(".carousel-perspective");
+  const albumSection = document.getElementById("album-section");
   if (!items.length || !prevBtn || !nextBtn) return;
 
   let currentIndex = 2;
   const totalItems = items.length;
+  let isAnimating = false;
+  let suppressClick = false;
 
   function updateCarousel() {
     items.forEach((item, index) => {
@@ -266,55 +270,115 @@ function setupAlbumCarousel() {
     });
   }
 
-  prevBtn.addEventListener("click", () => {
-    currentIndex = (currentIndex - 1 + totalItems) % totalItems;
+  function goTo(index) {
+    if (isAnimating) return;
+    isAnimating = true;
+    currentIndex = (index + totalItems) % totalItems;
     updateCarousel();
-  });
+    window.setTimeout(() => {
+      isAnimating = false;
+    }, 480);
+  }
 
-  nextBtn.addEventListener("click", () => {
-    currentIndex = (currentIndex + 1) % totalItems;
-    updateCarousel();
-  });
+  function next() {
+    goTo(currentIndex + 1);
+  }
+
+  function prev() {
+    goTo(currentIndex - 1);
+  }
+
+  prevBtn.addEventListener("click", prev);
+  nextBtn.addEventListener("click", next);
 
   items.forEach((item, index) => {
-    item.addEventListener("click", () => {
-      currentIndex = index;
-      updateCarousel();
+    item.addEventListener("click", (e) => {
+      if (suppressClick) {
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+      goTo(index);
     });
   });
 
   paginationDots.forEach((dot, index) => {
-    dot.addEventListener("click", () => {
-      currentIndex = index;
-      updateCarousel();
-    });
+    dot.addEventListener("click", () => goTo(index));
   });
 
-  const carouselContainer = document.querySelector(".carousel-perspective");
   if (carouselContainer) {
-    let touchStartX = 0;
-    let touchEndX = 0;
+    let startX = 0;
+    let startY = 0;
+    let lastX = 0;
+    let axis = null; // "x" | "y" | null
+    let dragging = false;
 
-    carouselContainer.addEventListener("touchstart", (e) => {
-      touchStartX = e.changedTouches[0].screenX;
-    }, { passive: true });
+    function onTouchStart(e) {
+      if (!e.touches || e.touches.length !== 1) return;
+      const t = e.touches[0];
+      startX = lastX = t.clientX;
+      startY = t.clientY;
+      axis = null;
+      dragging = true;
+      suppressClick = false;
+      carouselContainer.classList.add("is-swiping");
+    }
 
-    carouselContainer.addEventListener("touchend", (e) => {
-      touchEndX = e.changedTouches[0].screenX;
-      handleSwipe();
-    }, { passive: true });
+    function onTouchMove(e) {
+      if (!dragging || !e.touches || e.touches.length !== 1) return;
+      const t = e.touches[0];
+      const dx = t.clientX - startX;
+      const dy = t.clientY - startY;
+      lastX = t.clientX;
 
-    function handleSwipe() {
-      const swipeThreshold = 50;
-      if (touchEndX < touchStartX - swipeThreshold) {
-        currentIndex = (currentIndex + 1) % totalItems;
-        updateCarousel();
+      if (!axis) {
+        if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+        axis = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
       }
-      if (touchEndX > touchStartX + swipeThreshold) {
-        currentIndex = (currentIndex - 1 + totalItems) % totalItems;
-        updateCarousel();
+
+      // Vuốt ngang: chặn scroll trang / kéo layout
+      if (axis === "x") {
+        e.preventDefault();
+        suppressClick = true;
       }
     }
+
+    function onTouchEnd() {
+      if (!dragging) return;
+      dragging = false;
+      carouselContainer.classList.remove("is-swiping");
+
+      if (axis === "x") {
+        const dx = lastX - startX;
+        const threshold = Math.min(56, Math.max(36, carouselContainer.clientWidth * 0.12));
+        if (dx <= -threshold) next();
+        else if (dx >= threshold) prev();
+      }
+
+      // Tránh click nhầm sau vuốt
+      if (suppressClick) {
+        window.setTimeout(() => {
+          suppressClick = false;
+        }, 280);
+      }
+      axis = null;
+    }
+
+    function onTouchCancel() {
+      dragging = false;
+      axis = null;
+      carouselContainer.classList.remove("is-swiping");
+      suppressClick = false;
+    }
+
+    carouselContainer.addEventListener("touchstart", onTouchStart, { passive: true });
+    carouselContainer.addEventListener("touchmove", onTouchMove, { passive: false });
+    carouselContainer.addEventListener("touchend", onTouchEnd, { passive: true });
+    carouselContainer.addEventListener("touchcancel", onTouchCancel, { passive: true });
+  }
+
+  if (albumSection) {
+    albumSection.classList.add("album-swipe-ready");
   }
 
   updateCarousel();
@@ -327,8 +391,8 @@ function setupBackgroundScroll() {
   const shell = track.parentElement;
   const img = track.querySelector("img");
   let ticking = false;
+  const BG_RATIO = 1024 / 512; // background.png
 
-  // Không để browser khôi phục vị trí scroll cũ khi refresh (thiệp còn đóng)
   if ("scrollRestoration" in history) {
     history.scrollRestoration = "manual";
   }
@@ -342,44 +406,83 @@ function setupBackgroundScroll() {
 
   lockScrollTop();
 
-  // Chiều cao khung nền cố định (tránh visualViewport — dễ hở đáy trên mobile)
-  function shellHeight() {
-    return (shell && shell.clientHeight) || window.innerHeight || document.documentElement.clientHeight || 1;
+  // Dùng layout viewport — ổn định hơn visualViewport trên iPhone
+  function viewHeight() {
+    return document.documentElement.clientHeight || window.innerHeight || 1;
+  }
+
+  function pageScrollY() {
+    return window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0;
   }
 
   function maxPageScroll() {
     const doc = document.documentElement;
-    const viewH = window.innerHeight || doc.clientHeight || 1;
-    return Math.max(1, doc.scrollHeight - viewH);
+    const body = document.body;
+    const scrollH = Math.max(doc.scrollHeight, body ? body.scrollHeight : 0);
+    return Math.max(1, scrollH - viewHeight());
   }
 
-  function bgHeight() {
-    const shellH = shellHeight();
-    const w = track.clientWidth || (shell && shell.clientWidth) || window.innerWidth || 1;
-    const naturalH = w * (1024 / 512);
-    if (!img) return Math.max(shellH, naturalH);
-    const painted = img.getBoundingClientRect().height || img.offsetHeight || 0;
-    return Math.max(shellH, naturalH, painted);
+  function columnWidth() {
+    return (shell && shell.clientWidth) || track.clientWidth || window.innerWidth || 1;
+  }
+
+  // Lệch nền ~18px xuống cho khớp mắt; phần hở đỉnh (nếu có) cùng màu đỉnh ảnh
+  const yShift = 18;
+
+  /**
+   * Cỡ ảnh nền: giữ tỉ lệ 1:2.
+   * Mobile hẹp → ảnh thấp hơn màn → phóng đều (không méo) cho cao >= viewport,
+   * rồi căn giữa ngang. Desktop rộng thì chiều cao dư → cuộn dần như máy tính.
+   */
+  function layoutBg() {
+    if (!img || !shell) return { viewH: viewHeight(), bgH: viewHeight() };
+
+    const viewH = viewHeight();
+    const colW = columnWidth();
+    let drawW = colW;
+    let drawH = colW * BG_RATIO;
+
+    // Cao tối thiểu = viewport + yShift để đẩy xuống vẫn phủ đáy màn
+    const minH = viewH + yShift;
+    if (drawH < minH) {
+      drawH = minH;
+      drawW = minH / BG_RATIO;
+    }
+
+    img.style.width = `${drawW}px`;
+    img.style.height = `${drawH}px`;
+    img.style.maxWidth = "none";
+    img.style.minHeight = "0";
+    img.style.objectFit = "fill";
+    img.style.display = "block";
+
+    track.style.width = `${drawW}px`;
+    track.style.height = `${drawH}px`;
+    track.style.left = "50%";
+    track.style.marginLeft = `${(-drawW / 2).toFixed(2)}px`;
+    track.style.top = "0";
+
+    return { viewH, bgH: drawH };
   }
 
   function updateBg() {
     ticking = false;
 
-    // Thiệp chưa mở: nền luôn ở đỉnh ảnh
     if (document.body.classList.contains("invite-locked")) {
       lockScrollTop();
-      track.style.transform = "translate3d(0, 0, 0)";
+      layoutBg();
+      // Giữ cùng lệch khi khóa scroll — mở thiệp không bị nhảy nền
+      track.style.transform = `translate3d(0, ${yShift}px, 0)`;
       return;
     }
 
-    const viewH = shellHeight();
-    const bgH = bgHeight();
+    const { viewH, bgH } = layoutBg();
     const excess = Math.max(0, bgH - viewH);
     const maxScroll = maxPageScroll();
-    const scrollY = window.scrollY || window.pageYOffset || 0;
-    // Gần đáy trang thì neo cứng progress = 1 để không hở 1–2px
-    const progress = scrollY >= maxScroll - 2 ? 1 : Math.min(1, Math.max(0, scrollY / maxScroll));
-    const y = -progress * excess;
+    const scrollY = Math.min(Math.max(0, pageScrollY()), maxScroll);
+    const progress = maxScroll <= 1 ? 0 : Math.min(1, scrollY / maxScroll);
+    // Đẩy xuống lúc đầu; cuối trang về 0 để neo đúng đáy (không hở dưới)
+    const y = -progress * excess + yShift * (1 - progress);
     track.style.transform = `translate3d(0, ${y.toFixed(2)}px, 0)`;
   }
 
@@ -394,18 +497,22 @@ function setupBackgroundScroll() {
     requestAnimationFrame(requestUpdate);
     setTimeout(requestUpdate, 50);
     setTimeout(requestUpdate, 200);
-    setTimeout(requestUpdate, 600);
+    setTimeout(requestUpdate, 500);
   }
 
   window.addEventListener("scroll", requestUpdate, { passive: true });
   window.addEventListener("resize", forceUpdateSoon);
-  window.addEventListener("orientationchange", forceUpdateSoon);
+  window.addEventListener("orientationchange", () => {
+    setTimeout(forceUpdateSoon, 100);
+    setTimeout(forceUpdateSoon, 400);
+  });
   window.addEventListener("pageshow", () => {
     lockScrollTop();
     forceUpdateSoon();
   });
   window.addEventListener("load", forceUpdateSoon);
 
+  // Chỉ layout lại khi thanh địa chỉ iOS đổi — không dùng vv.height để tính y
   if (window.visualViewport) {
     window.visualViewport.addEventListener("resize", forceUpdateSoon);
   }
@@ -432,7 +539,6 @@ function setupBackgroundScroll() {
     mo.observe(home, { attributes: true, attributeFilter: ["class"] });
   }
 
-  // Mở/khóa thiệp đổi chiều dài trang → tính lại
   const bodyObserver = new MutationObserver(forceUpdateSoon);
   bodyObserver.observe(document.body, { attributes: true, attributeFilter: ["class"] });
 
@@ -440,8 +546,6 @@ function setupBackgroundScroll() {
     const ro = new ResizeObserver(requestUpdate);
     ro.observe(document.documentElement);
     if (shell) ro.observe(shell);
-    ro.observe(track);
-    if (img) ro.observe(img);
   }
 }
 
