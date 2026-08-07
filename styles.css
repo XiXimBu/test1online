@@ -2148,9 +2148,8 @@
             white-space: nowrap;
         }
         .paper-section .couple-name,
-        .couple-names-block .couple-name,
-        #wedding-info-section .couple-name {
-            color: #B87474 !important;
+        .couple-names-block .couple-name {
+            color: #C43B4A;
         }
         /* Hàng tên ngang: chú rể | & | cô dâu — căn giữa, không chìa khỏi cột */
         .couple-name-row {
@@ -2274,7 +2273,7 @@
             overflow-wrap: anywhere;
             word-break: break-word;
             white-space: normal;
-            color: #B87474 !important;
+            color: #C43B4A;
         }
         @media (max-width: 360px) {
             .paper-section .couple-name {
