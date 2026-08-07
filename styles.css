@@ -689,7 +689,7 @@
             width: 100%;
         }
         #home .hero-name {
-            color: #C43B4A !important;
+            color: #B87474 !important;
         }
         .hero-crown {
             width: min(68%, 200px);
@@ -1272,7 +1272,7 @@
             line-height: 1.2;
             letter-spacing: 0.01em;
             text-transform: none;
-            color: #C43B4A;
+            color: #B87474;
             width: min(100%, var(--couple-hint-w, var(--env-card-w)));
             max-width: 100%;
             overflow: hidden;
@@ -2147,6 +2147,10 @@
             font-style: normal;
             white-space: nowrap;
         }
+        .paper-section .couple-name,
+        .couple-names-block .couple-name {
+            color: #B87474;
+        }
         /* Hàng tên ngang: chú rể | & | cô dâu — căn giữa, không chìa khỏi cột */
         .couple-name-row {
             display: grid;
@@ -2314,7 +2318,7 @@
             font-size: var(--couple-name-size, clamp(16px, 4.8vw, 22px));
             line-height: 1.2;
             letter-spacing: 0.01em;
-            color: #C43B4A;
+            color: #B87474;
             width: min(100%, var(--couple-hint-w));
             max-width: 100%;
             margin-left: auto;
