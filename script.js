@@ -20,9 +20,37 @@ document.addEventListener("DOMContentLoaded", () => {
   setupInviteEnvelope();
   setupBackgroundScroll();
   setupAmbientFall();
-  setupAlbumCarousel();
+  setupAlbumGallery();
   setupLixiPreview();
+  setupRsvpForm();
 });
+
+function setupRsvpForm() {
+  const form = document.getElementById("rsvp-form");
+  if (!form) return;
+
+  const countSelect = document.getElementById("guest-count");
+  const guestsField = document.getElementById("rsvp-guests-field");
+  const companionsInput = document.getElementById("guest-companions");
+  const attendRadios = form.querySelectorAll('input[name="attend"]');
+
+  function updateGuestsVisibility() {
+    const attending = form.querySelector('input[name="attend"]:checked');
+    const show = !attending || attending.value === "yes";
+    guestsField.classList.toggle("is-hidden", !show);
+    countSelect.required = show;
+    if (!show) {
+      countSelect.removeAttribute("required");
+      if (companionsInput) companionsInput.value = "";
+    }
+  }
+
+  attendRadios.forEach((radio) => {
+    radio.addEventListener("change", updateGuestsVisibility);
+  });
+
+  updateGuestsVisibility();
+}
 
 function setupLixiPreview() {
   const zone = document.getElementById("lixi-zone");
@@ -379,157 +407,65 @@ function setupClosingCouple() {
   cards.forEach((card) => observer.observe(card));
 }
 
-function setupAlbumCarousel() {
-  const items = Array.from(document.querySelectorAll(".carousel-item"));
-  const prevBtn = document.getElementById("carousel-prev");
-  const nextBtn = document.getElementById("carousel-next");
-  const paginationDots = document.querySelectorAll("#carousel-pagination div");
-  const carouselContainer = document.querySelector(".carousel-perspective");
-  const albumSection = document.getElementById("album-section");
-  if (!items.length || !prevBtn || !nextBtn) return;
+function setupAlbumGallery() {
+  const mosaic = document.getElementById("album-mosaic");
+  const lightbox = document.getElementById("album-lightbox");
+  const lightboxImg = document.getElementById("album-lightbox-img");
+  const closeBtn = document.getElementById("album-lightbox-close");
+  if (!mosaic || !lightbox || !lightboxImg) return;
 
-  let currentIndex = 2;
-  const totalItems = items.length;
-  let isAnimating = false;
-  let suppressClick = false;
+  const cells = Array.from(mosaic.querySelectorAll(".album-cell"));
 
-  function updateCarousel() {
-    items.forEach((item, index) => {
-      let diff = index - currentIndex;
-      if (diff < -Math.floor(totalItems / 2)) diff += totalItems;
-      if (diff > Math.floor(totalItems / 2)) diff -= totalItems;
+  const reveal = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add("is-in");
+        reveal.unobserve(entry.target);
+      });
+    },
+    { threshold: 0.18, rootMargin: "0px 0px -6% 0px" }
+  );
+  cells.forEach((cell, i) => {
+    cell.style.animationDelay = `${Math.min(i * 0.05, 0.35)}s`;
+    reveal.observe(cell);
+  });
 
-      if (diff === 0) item.dataset.pos = "0";
-      else if (diff === -1) item.dataset.pos = "-1";
-      else if (diff === 1) item.dataset.pos = "1";
-      else if (diff === -2) item.dataset.pos = "-2";
-      else if (diff === 2) item.dataset.pos = "2";
-      else item.dataset.pos = diff < 0 ? "hidden-left" : "hidden-right";
-    });
-
-    paginationDots.forEach((dot, index) => {
-      if (index === currentIndex) {
-        dot.className =
-          "w-8 h-2 rounded-full bg-[#C98989] transition-all duration-300 cursor-pointer";
-      } else {
-        dot.className =
-          "w-2 h-2 rounded-full bg-[#E8C4C4] transition-all duration-300 cursor-pointer";
-      }
-    });
+  function openLightbox(src, alt) {
+    if (!src) return;
+    lightboxImg.src = src;
+    lightboxImg.alt = alt || "Anh album";
+    lightbox.hidden = false;
+    requestAnimationFrame(() => lightbox.classList.add("is-open"));
+    document.body.style.overflow = "hidden";
   }
 
-  function goTo(index) {
-    if (isAnimating) return;
-    isAnimating = true;
-    currentIndex = (index + totalItems) % totalItems;
-    updateCarousel();
+  function closeLightbox() {
+    lightbox.classList.remove("is-open");
+    document.body.style.overflow = "";
     window.setTimeout(() => {
-      isAnimating = false;
-    }, 480);
-  }
-
-  function next() {
-    goTo(currentIndex + 1);
-  }
-
-  function prev() {
-    goTo(currentIndex - 1);
-  }
-
-  prevBtn.addEventListener("click", prev);
-  nextBtn.addEventListener("click", next);
-
-  items.forEach((item, index) => {
-    item.addEventListener("click", (e) => {
-      if (suppressClick) {
-        e.preventDefault();
-        e.stopPropagation();
-        return;
+      if (!lightbox.classList.contains("is-open")) {
+        lightbox.hidden = true;
+        lightboxImg.removeAttribute("src");
       }
-      goTo(index);
+    }, 280);
+  }
+
+  cells.forEach((cell) => {
+    cell.addEventListener("click", () => {
+      const src = cell.getAttribute("data-album-src") || (cell.querySelector("img") || {}).src;
+      const alt = (cell.querySelector("img") || {}).alt || "";
+      openLightbox(src, alt);
     });
   });
 
-  paginationDots.forEach((dot, index) => {
-    dot.addEventListener("click", () => goTo(index));
+  if (closeBtn) closeBtn.addEventListener("click", closeLightbox);
+  lightbox.addEventListener("click", (e) => {
+    if (e.target === lightbox) closeLightbox();
   });
-
-  if (carouselContainer) {
-    let startX = 0;
-    let startY = 0;
-    let lastX = 0;
-    let axis = null; // "x" | "y" | null
-    let dragging = false;
-
-    function onTouchStart(e) {
-      if (!e.touches || e.touches.length !== 1) return;
-      const t = e.touches[0];
-      startX = lastX = t.clientX;
-      startY = t.clientY;
-      axis = null;
-      dragging = true;
-      suppressClick = false;
-      carouselContainer.classList.add("is-swiping");
-    }
-
-    function onTouchMove(e) {
-      if (!dragging || !e.touches || e.touches.length !== 1) return;
-      const t = e.touches[0];
-      const dx = t.clientX - startX;
-      const dy = t.clientY - startY;
-      lastX = t.clientX;
-
-      if (!axis) {
-        if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
-        axis = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
-      }
-
-      // Vuốt ngang: chặn scroll trang / kéo layout
-      if (axis === "x") {
-        e.preventDefault();
-        suppressClick = true;
-      }
-    }
-
-    function onTouchEnd() {
-      if (!dragging) return;
-      dragging = false;
-      carouselContainer.classList.remove("is-swiping");
-
-      if (axis === "x") {
-        const dx = lastX - startX;
-        const threshold = Math.min(56, Math.max(36, carouselContainer.clientWidth * 0.12));
-        if (dx <= -threshold) next();
-        else if (dx >= threshold) prev();
-      }
-
-      // Tránh click nhầm sau vuốt
-      if (suppressClick) {
-        window.setTimeout(() => {
-          suppressClick = false;
-        }, 280);
-      }
-      axis = null;
-    }
-
-    function onTouchCancel() {
-      dragging = false;
-      axis = null;
-      carouselContainer.classList.remove("is-swiping");
-      suppressClick = false;
-    }
-
-    carouselContainer.addEventListener("touchstart", onTouchStart, { passive: true });
-    carouselContainer.addEventListener("touchmove", onTouchMove, { passive: false });
-    carouselContainer.addEventListener("touchend", onTouchEnd, { passive: true });
-    carouselContainer.addEventListener("touchcancel", onTouchCancel, { passive: true });
-  }
-
-  if (albumSection) {
-    albumSection.classList.add("album-swipe-ready");
-  }
-
-  updateCarousel();
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && lightbox.classList.contains("is-open")) closeLightbox();
+  });
 }
 
 function setupBackgroundScroll() {
