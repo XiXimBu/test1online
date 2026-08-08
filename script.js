@@ -14,6 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   setupSlideCards();
   setupSectionTitleFade();
+  setupCouplePortraits();
   setupScheduleTimeline();
   setupClosingCouple();
   setupMusicToggle();
@@ -327,6 +328,24 @@ function setupSectionTitleFade() {
   );
 
   titles.forEach((title) => observer.observe(title));
+}
+
+function setupCouplePortraits() {
+  const block = document.getElementById("couple-portraits");
+  if (!block) return;
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-in");
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.3, rootMargin: "0px 0px -8% 0px" }
+  );
+  observer.observe(block);
 }
 
 function setupScheduleTimeline() {
