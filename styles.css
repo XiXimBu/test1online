@@ -3365,7 +3365,7 @@ body.invite-locked .music-fab {
 /* ===== couple portraits (giữa lễ cưới & tiệc cưới) ===== */
 #couple-portraits {
   position: relative;
-  z-index: 1;
+  z-index: 3; /* nổi trên cây đào của box tiệc cưới phía dưới */
   overflow: hidden; /* giấu phần trượt ngang khi vào từ phải */
 }
 .couple-portraits-row {
