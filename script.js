@@ -26,6 +26,45 @@ document.addEventListener("DOMContentLoaded", () => {
   setupRsvpForm();
 });
 
+const RSVP_FIREBASE_CONFIG = {
+  apiKey: "AIzaSyBe7fYgRshIowUQ8phoPh0nuUXeb47ZXug",
+  authDomain: "damcuoigianghanh.firebaseapp.com",
+  databaseURL:
+    "https://damcuoigianghanh-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "damcuoigianghanh",
+  storageBucket: "damcuoigianghanh.firebasestorage.app",
+  messagingSenderId: "724957835833",
+  appId: "1:724957835833:web:03d54b815314609af353e8",
+  measurementId: "G-MYJS9NS63L",
+};
+
+function getRsvpDatabase() {
+  if (typeof firebase === "undefined") return null;
+  try {
+    if (!firebase.apps.length) firebase.initializeApp(RSVP_FIREBASE_CONFIG);
+    return firebase.database();
+  } catch (err) {
+    console.warn("RSVP firebase init error:", err);
+    return null;
+  }
+}
+
+async function saveRsvpToFirebase(record) {
+  const db = getRsvpDatabase();
+  if (!db) return;
+
+  await db.ref("rsvp").push({
+    name: record.name,
+    relation: record.relation,
+    relationLabel: record.relation === "groom" ? "Khách chú rể" : "Khách cô dâu",
+    attend: record.attend,
+    attendLabel: record.attend === "yes" ? "Sẽ đến" : "Không đến",
+    guests: record.guests,
+    note: record.note,
+    createdAt: firebase.database.ServerValue.TIMESTAMP,
+  });
+}
+
 function setupRsvpForm() {
   const form = document.getElementById("rsvp-form");
   if (!form) return;
@@ -34,6 +73,10 @@ function setupRsvpForm() {
   const guestsField = document.getElementById("rsvp-guests-field");
   const companionsInput = document.getElementById("guest-companions");
   const attendRadios = form.querySelectorAll('input[name="attend"]');
+  const submitBtn = form.querySelector(".rsvp-submit");
+  const thankYou = document.getElementById("rsvp-thankyou");
+  const thankTitle = document.getElementById("rsvp-thankyou-title");
+  const thankText = document.getElementById("rsvp-thankyou-text");
 
   function updateGuestsVisibility() {
     const attending = form.querySelector('input[name="attend"]:checked');
@@ -48,6 +91,56 @@ function setupRsvpForm() {
 
   attendRadios.forEach((radio) => {
     radio.addEventListener("change", updateGuestsVisibility);
+  });
+
+  function showThankYou(attend, name) {
+    if (!thankYou) return;
+    const who = name ? name : "bạn";
+    if (attend === "yes") {
+      if (thankTitle) thankTitle.textContent = "Hẹn gặp lại!";
+      if (thankText)
+        thankText.textContent =
+          "Cảm ơn " +
+          who +
+          " đã nhận lời chung vui.\nDâu rể rất mong được gặp bạn trong ngày trọng đại.";
+    } else {
+      if (thankTitle) thankTitle.textContent = "Cảm ơn bạn!";
+      if (thankText)
+        thankText.textContent =
+          "Cảm ơn " +
+          who +
+          " đã dành thời gian phản hồi.\nDâu rể rất trân trọng tình cảm của bạn.";
+    }
+    form.hidden = true;
+    thankYou.hidden = false;
+    thankYou.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!form.reportValidity()) return;
+
+    const data = new FormData(form);
+    const name = String(data.get("guest-name") || "").trim().slice(0, 60);
+    const relation = String(data.get("guest-relation") || "");
+    const attend = String(data.get("attend") || "");
+    const note = String(data.get("guest-note") || "").trim().slice(0, 500);
+    const guests =
+      attend === "yes"
+        ? Math.max(1, Math.min(10, Number(countSelect.value) || 1))
+        : 0;
+
+    if (submitBtn) submitBtn.disabled = true;
+
+    try {
+      await saveRsvpToFirebase({ name, relation, attend, guests, note });
+    } catch (err) {
+      console.warn("RSVP save error:", err);
+    } finally {
+      if (submitBtn) submitBtn.disabled = false;
+    }
+
+    showThankYou(attend, name);
   });
 
   updateGuestsVisibility();

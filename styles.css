@@ -3684,6 +3684,62 @@ body.invite-locked .music-fab {
 .rsvp-submit:active {
   transform: scale(0.98);
 }
+
+/* ===== RSVP thank-you card (nền loicamon.png) ===== */
+.rsvp-thankyou {
+  width: 100%;
+  max-width: 360px;
+  margin: 0.25rem auto 0;
+  aspect-ratio: 853 / 1024;
+  background: url("https://res.cloudinary.com/dwryahwiu/image/upload/v1786197972/loicamon_svvhhb.jpg") center / contain no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: rsvpThanksIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.rsvp-thankyou[hidden] {
+  display: none;
+}
+.rsvp-thankyou-inner {
+  width: 68%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+.rsvp-thankyou-eyebrow {
+  font-family: "Great Vibes", cursive;
+  font-size: clamp(20px, 6vw, 26px);
+  color: #c43b4a;
+  line-height: 1;
+  margin: 0;
+}
+.rsvp-thankyou-title {
+  font-family: "Great Vibes", cursive;
+  font-size: clamp(30px, 9vw, 44px);
+  color: #c43b4a;
+  line-height: 1.1;
+  margin: 0;
+}
+.rsvp-thankyou-text {
+  font-size: clamp(12px, 3.4vw, 14px);
+  line-height: 1.6;
+  color: #8b4a4a;
+  white-space: pre-line;
+  margin: 0;
+}
+@keyframes rsvpThanksIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 @media (min-width: 768px) {
   .rsvp-panel {
     max-width: 460px;
