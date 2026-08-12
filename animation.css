@@ -1,0 +1,275 @@
+/* =========================================================
+   animation.css — @keyframes + prefers-reduced-motion
+   Tách từ styles.css — load SAU styles.css / responsive.css
+   ========================================================= */
+
+
+/* ---------- Keyframes ---------- */
+
+@keyframes sway {
+            0%, 100% { transform: rotate(-2deg); }
+            50% { transform: rotate(2deg); }
+        }
+
+@keyframes wi-drop {
+            from { opacity: 0; transform: translateY(-40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+@keyframes wi-slide-left {
+            from { opacity: 0; transform: translate3d(-56px, 0, 0); }
+            to { opacity: 1; transform: translate3d(0, 0, 0); }
+        }
+
+@keyframes wi-slide-right {
+            from { opacity: 0; transform: translate3d(56px, 0, 0); }
+            to { opacity: 1; transform: translate3d(0, 0, 0); }
+        }
+
+@keyframes wi-rise {
+            from { opacity: 0; transform: translate3d(0, 32px, 0); }
+            to { opacity: 1; transform: translate3d(0, 0, 0); }
+        }
+
+@keyframes wi-scale-in {
+            from { opacity: 0; transform: scale(0.86); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+@keyframes wi-fade-in {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+@keyframes wi-line-in {
+            from { opacity: 0; transform: scaleY(0); }
+            to { opacity: 1; transform: scaleY(1); }
+        }
+
+@keyframes couple-roll-in-left {
+            0% {
+                opacity: 0;
+                transform: translate3d(calc(-115% - 20px), 10px, 0) rotate(-34deg);
+            }
+            65% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 1;
+                transform: translate3d(0, 0, 0) rotate(-8deg);
+            }
+        }
+
+@keyframes couple-roll-in-right {
+            0% {
+                opacity: 0;
+                transform: translate3d(calc(115% + 20px), 10px, 0) rotate(34deg);
+            }
+            65% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 1;
+                transform: translate3d(0, 0, 0) rotate(7deg);
+            }
+        }
+
+@keyframes closing-from-left {
+            from { opacity: 0; transform: translate3d(-48px, 0, 0); }
+            to { opacity: 1; transform: translate3d(0, 0, 0); }
+        }
+
+@keyframes closing-from-right {
+            from { opacity: 0; transform: translate3d(48px, 0, 0); }
+            to { opacity: 1; transform: translate3d(0, 0, 0); }
+        }
+
+@keyframes closing-amp-in {
+            from { opacity: 0; transform: scale(0.7); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+@keyframes closing-from-bottom {
+            from { opacity: 0; transform: translate3d(0, 36px, 0); }
+            to { opacity: 1; transform: translate3d(0, 0, 0); }
+        }
+
+@keyframes petal-fall {
+            0% {
+                transform: translate3d(0, -10px, 0) rotate(0deg) scale(1);
+                opacity: 0;
+            }
+            6% { opacity: 0.9; }
+            85% { opacity: 0.7; }
+            100% {
+                transform: translate3d(var(--drift, 20px), var(--fall, 480px), 0) rotate(var(--spin, 360deg)) scale(0.9);
+                opacity: 0;
+            }
+        }
+
+@keyframes seal-pulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.06); }
+        }
+
+@keyframes shine {
+            0% { left: -40%; }
+            100% { left: 120%; }
+        }
+
+@keyframes card-border-glow {
+            0% {
+                filter: brightness(1);
+                box-shadow:
+                    0 12px 32px rgba(185, 154, 104, 0.28),
+                    0 28px 64px rgba(201, 180, 140, 0.22),
+                    0 0 40px rgba(214, 196, 158, 0.35);
+            }
+            40% {
+                filter: brightness(1.08);
+                box-shadow:
+                    0 16px 40px rgba(185, 154, 104, 0.35),
+                    0 0 48px 10px rgba(201, 180, 140, 0.45);
+            }
+            100% {
+                filter: brightness(1.15);
+                box-shadow:
+                    0 20px 56px rgba(185, 154, 104, 0.3),
+                    0 0 64px 18px rgba(235, 223, 200, 0.5);
+            }
+        }
+
+@keyframes stroke-fly-in {
+            0% {
+                transform: translate3d(var(--from-x), var(--from-y), 0) scale(0.4) rotate(var(--spin0));
+                opacity: 0;
+            }
+            18% { opacity: 0.9; }
+            100% {
+                transform: translate3d(var(--to-x), var(--to-y), 0) scale(1) rotate(var(--spin1));
+                opacity: 0;
+            }
+        }
+
+@keyframes hi-leap {
+            0% {
+                transform: translate(-50%, -50%) scale(0.55);
+                opacity: 0.85;
+                filter: brightness(1);
+                text-shadow:
+                    0 0 8px rgba(243, 239, 231, 0.8),
+                    0 0 16px rgba(185, 154, 104, 0.6);
+            }
+            28% {
+                transform: translate(-50%, -50%) scale(1.35);
+                opacity: 1;
+                filter: brightness(1.35);
+                text-shadow:
+                    0 0 12px #fff,
+                    0 0 28px #F3EFE7,
+                    0 0 52px #B99A68,
+                    0 0 80px #E4D6BC;
+            }
+            62% {
+                transform: translate(-50%, -130%) scale(1.85);
+                opacity: 1;
+                filter: brightness(1.5);
+                text-shadow:
+                    0 0 18px #fff,
+                    0 0 40px #F3EFE7,
+                    0 0 70px #B99A68,
+                    0 0 110px rgba(224, 210, 180, 0.9);
+            }
+            100% {
+                transform: translate(-50%, -210%) scale(2.35);
+                opacity: 0;
+                filter: brightness(1.6);
+                text-shadow:
+                    0 0 24px #fff,
+                    0 0 60px #B99A68;
+            }
+        }
+
+@keyframes rsvpThanksIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes cover-spark-twinkle {
+  0%, 100% { opacity: 0.25; transform: scale(0.7); }
+  45% { opacity: 1; transform: scale(1.25); }
+  70% { opacity: 0.55; transform: scale(0.95); }
+}
+
+@keyframes intro-caret {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes cover-gate-pulse {
+  0%, 100% { opacity: 0.55; transform: translateY(0); }
+  50% { opacity: 1; transform: translateY(-3px); }
+}
+
+
+/* ---------- Reduced motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .live-book,
+  .live-chip,
+  .book-fab,
+  .heart-fab,
+  .heart-float {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .couple-forever,
+  .couple-polaroid,
+  .couple-tag,
+  .couple-flower,
+  .couple-quote {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+    animation-duration: 0.01ms !important;
+    animation-delay: 0s !important;
+  }
+  #couple-portraits.is-in .couple-polaroid-a,
+  #couple-portraits.is-in .couple-polaroid-b {
+    animation: none !important;
+    opacity: 1;
+  }
+  #couple-portraits.is-in .couple-polaroid-a { transform: rotate(-8deg); }
+  #couple-portraits.is-in .couple-polaroid-b { transform: rotate(7deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cover-panel,
+  .cover-left-wrap,
+  .cover-right { transition-duration: 0.01ms; }
+  .cover-hint { animation: none; }
+  .cover-reveal { transition-duration: 0.01ms; }
+  .hero-slider-track { transition: none; }
+  .intro-line.is-typing::after { animation: none; }
+  .cover-gate-text { animation: none; }
+  .cover-spark { animation: none; opacity: 0.7; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .love-title-block,
+  .love-cell,
+  .photo-album-item,
+  .photo-album-item img,
+  .album-lightbox {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+

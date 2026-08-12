@@ -15,15 +15,19 @@ document.addEventListener("DOMContentLoaded", () => {
   setupSlideCards();
   setupSectionTitleFade();
   setupCouplePortraits();
-  setupScheduleTimeline();
   setupClosingCouple();
   setupMusicToggle();
   setupInviteEnvelope();
+  setupCoverGuestName();
   setupBackgroundScroll();
-  setupAmbientFall();
-  setupAlbumGallery();
+  setupHeroSlider();
+  setupCountdown();
+  setupCountIcon();
+  setupCountWine();
   setupLixiPreview();
   setupRsvpForm();
+  setupLoveAlbum();
+  setupPhotoAlbum();
 });
 
 const RSVP_FIREBASE_CONFIG = {
@@ -71,27 +75,59 @@ function setupRsvpForm() {
 
   const countSelect = document.getElementById("guest-count");
   const guestsField = document.getElementById("rsvp-guests-field");
-  const companionsInput = document.getElementById("guest-companions");
+  const relationSelect = document.getElementById("rsvp-relation");
+  const attendField = document.getElementById("rsvp-attend-field");
   const attendRadios = form.querySelectorAll('input[name="attend"]');
   const submitBtn = form.querySelector(".rsvp-submit");
   const thankYou = document.getElementById("rsvp-thankyou");
   const thankTitle = document.getElementById("rsvp-thankyou-title");
   const thankText = document.getElementById("rsvp-thankyou-text");
 
-  function updateGuestsVisibility() {
-    const attending = form.querySelector('input[name="attend"]:checked');
-    const show = !attending || attending.value === "yes";
-    guestsField.classList.toggle("is-hidden", !show);
-    countSelect.required = show;
-    if (!show) {
-      countSelect.removeAttribute("required");
-      if (companionsInput) companionsInput.value = "";
+  function markAskDone(el, done) {
+    if (!el) return;
+    el.classList.toggle("is-done", !!done);
+  }
+
+  function selectedAttend() {
+    const checked = form.querySelector('input[name="attend"]:checked');
+    return checked ? checked.value : "";
+  }
+
+  function updateAttendUI() {
+    const attend = selectedAttend();
+    const showGuests = attend === "yes";
+    if (guestsField) {
+      guestsField.classList.toggle("is-hidden", !showGuests);
+    }
+    if (countSelect) {
+      if (showGuests) countSelect.setAttribute("required", "required");
+      else countSelect.removeAttribute("required");
+    }
+    // Đã chọn → ẩn câu hỏi, chỉ giữ đáp án đã chọn
+    markAskDone(attendField, !!attend);
+    if (attendField) {
+      attendField.querySelectorAll(".rsvp-choice-item").forEach((item) => {
+        const input = item.querySelector("input");
+        const picked = !!attend && input && input.value === attend;
+        item.classList.toggle("is-picked", picked);
+        item.classList.toggle("is-aside", !!attend && !picked);
+      });
     }
   }
 
+  function updateRelationUI() {
+    markAskDone(
+      form.querySelector('[data-rsvp-ask="relation"]'),
+      !!(relationSelect && relationSelect.value)
+    );
+  }
+
   attendRadios.forEach((radio) => {
-    radio.addEventListener("change", updateGuestsVisibility);
+    radio.addEventListener("change", updateAttendUI);
   });
+  if (relationSelect) {
+    relationSelect.addEventListener("change", updateRelationUI);
+  }
 
   function showThankYou(attend, name) {
     if (!thankYou) return;
@@ -124,10 +160,10 @@ function setupRsvpForm() {
     const name = String(data.get("guest-name") || "").trim().slice(0, 60);
     const relation = String(data.get("guest-relation") || "");
     const attend = String(data.get("attend") || "");
-    const note = String(data.get("guest-note") || "").trim().slice(0, 500);
+    const note = "";
     const guests =
       attend === "yes"
-        ? Math.max(1, Math.min(10, Number(countSelect.value) || 1))
+        ? Math.max(1, Math.min(10, Number(countSelect?.value) || 1))
         : 0;
 
     if (submitBtn) submitBtn.disabled = true;
@@ -143,87 +179,16 @@ function setupRsvpForm() {
     showThankYou(attend, name);
   });
 
-  updateGuestsVisibility();
+  updateRelationUI();
+  updateAttendUI();
 }
 
 function setupLixiPreview() {
-  const zone = document.getElementById("lixi-zone");
-  const pair = document.getElementById("lixi-pair");
   const boards = document.getElementById("lixi-boards");
   const copiedEl = document.getElementById("lixi-preview-copied");
-  const hint = document.getElementById("lixi-hint");
-  if (!zone || !pair || !boards) return;
+  if (!boards) return;
 
   let copyTimer = 0;
-  const boardNodes = [
-    document.getElementById("lixi-board-groom"),
-    document.getElementById("lixi-board-bride"),
-  ].filter(Boolean);
-
-  function isOpen() {
-    return zone.classList.contains("has-preview");
-  }
-
-  function syncButtons(open) {
-    pair.querySelectorAll("[data-lixi]").forEach((btn) => {
-      btn.setAttribute("aria-expanded", open ? "true" : "false");
-    });
-    if (hint) {
-      hint.textContent = open ? "Nhấn × để đóng" : "Nhấn bao lì xì để xem QR";
-    }
-  }
-
-  function openBoth() {
-    boardNodes.forEach((board) => {
-      board.hidden = false;
-      board.removeAttribute("hidden");
-      board.setAttribute("aria-hidden", "false");
-      board.classList.add("is-open");
-    });
-    zone.classList.add("has-preview");
-    boards.classList.add("has-open");
-    syncButtons(true);
-  }
-
-  function closeBoth() {
-    boardNodes.forEach((board) => {
-      board.classList.remove("is-open");
-      board.setAttribute("aria-hidden", "true");
-    });
-    zone.classList.remove("has-preview");
-    boards.classList.remove("has-open");
-    syncButtons(false);
-    window.setTimeout(() => {
-      if (isOpen()) return;
-      boardNodes.forEach((board) => {
-        if (!board.classList.contains("is-open")) {
-          board.hidden = true;
-          board.setAttribute("hidden", "");
-        }
-      });
-    }, 240);
-  }
-
-  function toggleBoth() {
-    if (isOpen()) closeBoth();
-    else openBoth();
-  }
-
-  pair.querySelectorAll("[data-lixi]").forEach((btn) => {
-    btn.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      toggleBoth();
-    });
-  });
-
-  boards.querySelectorAll("[data-lixi-close]").forEach((el) => {
-    el.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      closeBoth();
-    });
-  });
 
   boards.querySelectorAll("[data-copy]").forEach((btn) => {
     btn.addEventListener("click", async (e) => {
@@ -277,10 +242,14 @@ function setupMusicToggle() {
   const btn = document.getElementById("music-btn");
   const audio = document.getElementById("invite-music");
   const shell = document.querySelector(".invite-shell");
+  const dock =
+    document.getElementById("utility-dock") ||
+    document.getElementById("music-dock");
   if (!btn || !audio) return;
 
   const pad = 16;
   const btnSize = 48;
+  const clearGap = 18;
 
   function placeBtn() {
     let bottom = pad;
@@ -288,7 +257,6 @@ function setupMusicToggle() {
 
     if (window.visualViewport) {
       const vv = window.visualViewport;
-      // Phần bị UI trình duyệt chiếm ở đáy (home bar / thanh địa chỉ)
       const gapBottom = Math.max(0, window.innerHeight - (vv.height + vv.offsetTop));
       bottom = pad + gapBottom;
     }
@@ -300,10 +268,12 @@ function setupMusicToggle() {
       right = Math.min(right, maxRight);
     }
 
-    btn.style.right = `${right}px`;
-    btn.style.bottom = `${bottom}px`;
-    btn.style.left = "auto";
-    btn.style.top = "auto";
+    const target = dock || btn;
+    target.style.right = `${right}px`;
+    target.style.bottom = `${bottom}px`;
+    target.style.left = "auto";
+    target.style.top = "auto";
+    target.style.setProperty("--music-clearance", `${btnSize + clearGap}px`);
   }
 
   function schedulePlace() {
@@ -441,50 +411,6 @@ function setupCouplePortraits() {
   observer.observe(block);
 }
 
-function setupScheduleTimeline() {
-  const track = document.getElementById("schedule-track");
-  const fill = document.getElementById("schedule-line-fill");
-  const items = document.querySelectorAll(".schedule-item");
-  if (!track || !fill) return;
-
-  let ticking = false;
-
-  function updateLine() {
-    ticking = false;
-    const rect = track.getBoundingClientRect();
-    const viewH = window.innerHeight || 1;
-    // Đường line bắt đầu chạy khi đầu track vào giữa màn, đầy khi đáy track gần đáy màn
-    const start = viewH * 0.72;
-    const end = viewH * 0.28;
-    const progress = Math.min(1, Math.max(0, (start - rect.top) / (start - end + rect.height)));
-    fill.style.transform = `scaleY(${progress.toFixed(4)})`;
-  }
-
-  function onScroll() {
-    if (ticking) return;
-    ticking = true;
-    requestAnimationFrame(updateLine);
-  }
-
-  window.addEventListener("scroll", onScroll, { passive: true });
-  window.addEventListener("resize", onScroll);
-  onScroll();
-
-  if (!items.length) return;
-  const itemObserver = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("is-in");
-          itemObserver.unobserve(entry.target);
-        }
-      });
-    },
-    { threshold: 0.45, rootMargin: "0px 0px -8% 0px" }
-  );
-  items.forEach((item) => itemObserver.observe(item));
-}
-
 function setupClosingCouple() {
   const block = document.getElementById("closing-couple");
   if (!block) return;
@@ -501,7 +427,128 @@ function setupClosingCouple() {
     { threshold: 0.35, rootMargin: "0px 0px -8% 0px" }
   );
   observer.observe(block);
-}function setupSlideCards() {
+}
+
+function setupLoveAlbum() {
+  const title = document.getElementById("love-title-block");
+  const block = document.getElementById("love-album");
+  if (!title && !block) return;
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-in");
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.28, rootMargin: "0px 0px -6% 0px" }
+  );
+  if (title) observer.observe(title);
+  if (block) observer.observe(block);
+}
+
+function setupPhotoAlbum() {
+  const block = document.getElementById("photo-album");
+  const grid = document.getElementById("photo-album-grid");
+  const lightbox = document.getElementById("album-lightbox");
+  const imgEl = document.getElementById("album-lightbox-img");
+  const countEl = document.getElementById("album-lightbox-count");
+  const closeBtn = document.getElementById("album-lightbox-close");
+  const prevBtn = document.getElementById("album-lightbox-prev");
+  const nextBtn = document.getElementById("album-lightbox-next");
+  if (!block || !grid || !lightbox || !imgEl) return;
+
+  const items = Array.from(grid.querySelectorAll(".photo-album-item"));
+  const photos = items
+    .map((btn) => {
+      const img = btn.querySelector("img");
+      return img
+        ? { src: img.currentSrc || img.src, alt: img.alt || "Anh album" }
+        : null;
+    })
+    .filter(Boolean);
+  if (!photos.length) return;
+
+  let index = 0;
+  let touchX = 0;
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-in");
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.2, rootMargin: "0px 0px -6% 0px" }
+  );
+  observer.observe(block);
+
+  function show(i) {
+    index = ((i % photos.length) + photos.length) % photos.length;
+    const photo = photos[index];
+    imgEl.src = photo.src;
+    imgEl.alt = photo.alt;
+    if (countEl) countEl.textContent = `${index + 1} / ${photos.length}`;
+  }
+
+  function open(i) {
+    show(i);
+    lightbox.hidden = false;
+    requestAnimationFrame(() => lightbox.classList.add("is-open"));
+    document.body.style.overflow = "hidden";
+  }
+
+  function close() {
+    lightbox.classList.remove("is-open");
+    document.body.style.overflow = "";
+    window.setTimeout(() => {
+      if (!lightbox.classList.contains("is-open")) lightbox.hidden = true;
+    }, 280);
+  }
+
+  items.forEach((btn, i) => {
+    btn.addEventListener("click", () => open(i));
+  });
+  closeBtn?.addEventListener("click", close);
+  prevBtn?.addEventListener("click", () => show(index - 1));
+  nextBtn?.addEventListener("click", () => show(index + 1));
+
+  lightbox.addEventListener("click", (e) => {
+    if (e.target === lightbox) close();
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (lightbox.hidden) return;
+    if (e.key === "Escape") close();
+    if (e.key === "ArrowLeft") show(index - 1);
+    if (e.key === "ArrowRight") show(index + 1);
+  });
+
+  lightbox.addEventListener(
+    "touchstart",
+    (e) => {
+      touchX = e.changedTouches[0]?.clientX || 0;
+    },
+    { passive: true }
+  );
+  lightbox.addEventListener(
+    "touchend",
+    (e) => {
+      const x = e.changedTouches[0]?.clientX || 0;
+      const dx = x - touchX;
+      if (Math.abs(dx) < 48) return;
+      if (dx > 0) show(index - 1);
+      else show(index + 1);
+    },
+    { passive: true }
+  );
+}
+
+function setupSlideCards() {
   const cards = document.querySelectorAll(".invite-slide-card");
   if (!cards.length) return;
 
@@ -509,6 +556,7 @@ function setupClosingCouple() {
     (entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
+
           entry.target.classList.add("is-in");
         }
       });
@@ -519,64 +567,384 @@ function setupClosingCouple() {
   cards.forEach((card) => observer.observe(card));
 }
 
-function setupAlbumGallery() {
-  const mosaic = document.getElementById("album-mosaic");
-  const lightbox = document.getElementById("album-lightbox");
-  const lightboxImg = document.getElementById("album-lightbox-img");
-  const closeBtn = document.getElementById("album-lightbox-close");
-  if (!mosaic || !lightbox || !lightboxImg) return;
+function setupHeroSlider() {
+  const root = document.getElementById("hero-slider");
+  const home = document.getElementById("home");
+  if (!root || !home) return;
 
-  const cells = Array.from(mosaic.querySelectorAll(".album-cell"));
+  const viewport = root.querySelector(".hero-slider-viewport");
+  const track = root.querySelector(".hero-slider-track");
+  const nextBtn = document.getElementById("hero-slider-next");
+  if (!viewport || !track) return;
 
-  const reveal = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-        entry.target.classList.add("is-in");
-        reveal.unobserve(entry.target);
-      });
-    },
-    { threshold: 0.18, rootMargin: "0px 0px -6% 0px" }
-  );
-  cells.forEach((cell, i) => {
-    cell.style.animationDelay = `${Math.min(i * 0.05, 0.35)}s`;
-    reveal.observe(cell);
-  });
+  const albumSrcs = [
+    "https://res.cloudinary.com/dwryahwiu/image/upload/v1786086703/1786060246585_3741576002241547934_3741576002241547934_ed1a88f9d6c9facffd0590dcd330dabb_c1a2g3.jpg",
+    "https://res.cloudinary.com/dwryahwiu/image/upload/v1786086703/1786060246595_3741576002241547934_3741576002241547934_d54a69ab00a30d787e63cc8145f6ccb3_rnst5o.jpg",
+  ];
 
-  function openLightbox(src, alt) {
-    if (!src) return;
-    lightboxImg.src = src;
-    lightboxImg.alt = alt || "Anh album";
-    lightbox.hidden = false;
-    requestAnimationFrame(() => lightbox.classList.add("is-open"));
-    document.body.style.overflow = "hidden";
+  if (albumSrcs.length) {
+    track.innerHTML = albumSrcs
+      .map(
+        (src) =>
+          `<div class="hero-slide"><img src="${src}" alt="Anh cuoi" decoding="async" draggable="false"/></div>`
+      )
+      .join("");
   }
 
-  function closeLightbox() {
-    lightbox.classList.remove("is-open");
-    document.body.style.overflow = "";
-    window.setTimeout(() => {
-      if (!lightbox.classList.contains("is-open")) {
-        lightbox.hidden = true;
-        lightboxImg.removeAttribute("src");
-      }
-    }, 280);
+  const slides = Array.from(track.querySelectorAll(".hero-slide"));
+  if (slides.length < 1) return;
+
+  let index = 0;
+  let timer = 0;
+  let started = false;
+  const AUTO_MS = 4200;
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function go(to) {
+    if (slides.length < 2) return;
+    index = ((to % slides.length) + slides.length) % slides.length;
+    track.style.transform = `translate3d(-${index * 100}%, 0, 0)`;
   }
 
-  cells.forEach((cell) => {
-    cell.addEventListener("click", () => {
-      const src = cell.getAttribute("data-album-src") || (cell.querySelector("img") || {}).src;
-      const alt = (cell.querySelector("img") || {}).alt || "";
-      openLightbox(src, alt);
+  function next() {
+    go(index + 1);
+  }
+
+  function arm() {
+    window.clearInterval(timer);
+    if (reduceMotion || slides.length < 2) return;
+    timer = window.setInterval(next, AUTO_MS);
+  }
+
+  function start() {
+    if (started) return;
+    started = true;
+    go(0);
+    arm();
+  }
+
+  if (nextBtn) {
+    nextBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      next();
+      arm();
     });
+  }
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      window.clearInterval(timer);
+    } else if (started) {
+      arm();
+    }
   });
 
-  if (closeBtn) closeBtn.addEventListener("click", closeLightbox);
-  lightbox.addEventListener("click", (e) => {
-    if (e.target === lightbox) closeLightbox();
+  if (home.classList.contains("is-layout-ready")) {
+    start();
+    return;
+  }
+
+  const obs = new MutationObserver(() => {
+    if (!home.classList.contains("is-layout-ready")) return;
+    start();
+    obs.disconnect();
   });
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && lightbox.classList.contains("is-open")) closeLightbox();
+  obs.observe(home, { attributes: true, attributeFilter: ["class"] });
+}
+
+function setupCountdown() {
+  const dayEl = document.getElementById("count-day");
+  const hourEl = document.getElementById("count-hour");
+  const minEl = document.getElementById("count-min");
+  const secEl = document.getElementById("count-sec");
+  if (!dayEl || !hourEl || !minEl || !secEl) return;
+
+  const endAt = new Date("2026-09-29T17:00:00+07:00").getTime();
+
+  function pad(n) {
+    return String(Math.max(0, n)).padStart(2, "0");
+  }
+
+  function tick() {
+    let left = Math.max(0, endAt - Date.now());
+    const day = Math.floor(left / 86400000);
+    left -= day * 86400000;
+    const hour = Math.floor(left / 3600000);
+    left -= hour * 3600000;
+    const min = Math.floor(left / 60000);
+    const sec = Math.floor((left % 60000) / 1000);
+    dayEl.textContent = pad(day);
+    hourEl.textContent = pad(hour);
+    minEl.textContent = pad(min);
+    secEl.textContent = pad(sec);
+  }
+
+  tick();
+  window.setInterval(tick, 1000);
+}
+
+function setupCountIcon() {
+  const icon = document.querySelector(".count-icon");
+  const sec = document.getElementById("count-sec");
+  const nums = document.getElementById("count-nums");
+  const stack = document.querySelector(".count-stack");
+  if (!icon || !sec || !nums || !stack) return;
+
+  function place() {
+    const fontSize = parseFloat(window.getComputedStyle(nums).fontSize) || 36;
+    const iconW = Math.round(fontSize * 2.15);
+    const gap = Math.max(8, Math.round(fontSize * 0.26));
+    icon.style.width = `${iconW}px`;
+    const stackBox = stack.getBoundingClientRect();
+    const secBox = sec.getBoundingClientRect();
+    const iconH = icon.getBoundingClientRect().height || iconW * (1032 / 897);
+    const left = secBox.left - stackBox.left + secBox.width / 2 - iconW / 2;
+    const top = secBox.top - stackBox.top - iconH - gap;
+    icon.style.left = `${Math.round(left)}px`;
+    icon.style.top = `${Math.round(top)}px`;
+    const needPad = Math.ceil(iconH + gap + 6);
+    if (parseFloat(window.getComputedStyle(stack).paddingTop) !== needPad) {
+      stack.style.paddingTop = `${needPad}px`;
+    }
+  }
+
+  function run() {
+    place();
+    window.requestAnimationFrame(place);
+  }
+
+  if (icon.complete) run();
+  else icon.addEventListener("load", run, { once: true });
+  window.addEventListener("resize", run);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(run);
+}
+
+function setupCountWine() {
+  const wrap = document.getElementById("count-wine");
+  const canvas = document.getElementById("count-wine-canvas");
+  const nums = document.getElementById("count-nums");
+  if (!wrap || !canvas || !nums) return;
+
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+
+  const WAVE_N = 42;
+  const wave = new Float32Array(WAVE_N);
+  const waveV = new Float32Array(WAVE_N);
+  const drops = [];
+  let width = 1;
+  let height = 1;
+  let dpr = 1;
+  let poolY = 1;
+  let running = false;
+  let seen = false;
+  let lastT = 0;
+  let spawnWait = 0;
+
+  function sizeCanvas() {
+    const box = wrap.getBoundingClientRect();
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    width = Math.max(1, box.width);
+    height = Math.max(1, box.height);
+    canvas.width = Math.round(width * dpr);
+    canvas.height = Math.round(height * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    poolY = height * 0.34;
+  }
+
+  function addDrop(x, y, vx, vy, r, life) {
+    if (drops.length > 90) return;
+    drops.push({ x, y, vx, vy, r, life, max: life });
+  }
+
+  function hitWave(x, force) {
+    const i = Math.max(1, Math.min(WAVE_N - 2, Math.round((x / width) * (WAVE_N - 1))));
+    waveV[i] += force;
+    waveV[i - 1] += force * 0.45;
+    waveV[i + 1] += force * 0.45;
+  }
+
+  function stepWave() {
+    for (let i = 1; i < WAVE_N - 1; i += 1) {
+      const pull = -wave[i] * 0.011;
+      const left = wave[i - 1] - wave[i];
+      const right = wave[i + 1] - wave[i];
+      waveV[i] = (waveV[i] + pull + (left + right) * 0.07) * 0.986;
+    }
+    waveV[0] = waveV[1];
+    waveV[WAVE_N - 1] = waveV[WAVE_N - 2];
+    for (let i = 0; i < WAVE_N; i += 1) {
+      wave[i] += waveV[i];
+    }
+  }
+
+  function spawnStream(dt) {
+    spawnWait -= dt;
+    if (spawnWait > 0) return;
+    spawnWait = 0.075 + Math.random() * 0.04;
+    const mid = width * 0.5;
+    const side = Math.random() < 0.5 ? -1 : 1;
+    const x = mid + side * (8 + Math.random() * (width * 0.28));
+    addDrop(x, -2, side * (0.08 + Math.random() * 0.16), 1.2 + Math.random() * 0.5, 1.8 + Math.random() * 1, 1);
+  }
+
+  function stepDrops() {
+    for (let i = drops.length - 1; i >= 0; i -= 1) {
+      const d = drops[i];
+      d.vy += 0.07;
+      d.vx *= 0.994;
+      d.x += d.vx;
+      d.y += d.vy;
+      d.life -= 0.012;
+      const surface = poolY + wave[Math.max(0, Math.min(WAVE_N - 1, Math.round((d.x / width) * (WAVE_N - 1))))];
+      if (d.y + d.r >= surface && d.vy > 0 && d.y < poolY + 28) {
+        hitWave(d.x, Math.min(1.4, d.r * d.vy * 0.09));
+        const n = 2 + Math.floor(Math.random() * 2);
+        for (let s = 0; s < n; s += 1) {
+          addDrop(
+            d.x + (Math.random() - 0.5) * 8,
+            surface - 2,
+            (Math.random() - 0.5) * 2.8,
+            -0.9 - Math.random() * 1.2,
+            0.8 + Math.random() * 0.9,
+            0.55
+          );
+        }
+        drops.splice(i, 1);
+        continue;
+      }
+      if (d.life <= 0 || d.y > height + 12 || d.x < -16 || d.x > width + 16) {
+        drops.splice(i, 1);
+      }
+    }
+  }
+
+  function drawPool() {
+    const deep = height;
+    ctx.beginPath();
+    ctx.moveTo(0, deep);
+    ctx.lineTo(0, poolY + wave[0]);
+    for (let i = 1; i < WAVE_N; i += 1) {
+      const x = (i / (WAVE_N - 1)) * width;
+      ctx.lineTo(x, poolY + wave[i]);
+    }
+    ctx.lineTo(width, deep);
+    ctx.closePath();
+    const fill = ctx.createLinearGradient(0, poolY - 10, 0, deep);
+    fill.addColorStop(0, "rgba(214, 72, 84, 0.92)");
+    fill.addColorStop(0.45, "rgba(158, 26, 50, 0.96)");
+    fill.addColorStop(1, "rgba(88, 12, 24, 0.88)");
+    ctx.fillStyle = fill;
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(0, poolY + wave[0]);
+    for (let i = 1; i < WAVE_N; i += 1) {
+      ctx.lineTo((i / (WAVE_N - 1)) * width, poolY + wave[i]);
+    }
+    ctx.strokeStyle = "rgba(255, 208, 210, 0.42)";
+    ctx.lineWidth = 1.35;
+    ctx.stroke();
+  }
+
+  function drawGlyphs() {
+    const box = canvas.getBoundingClientRect();
+    ctx.save();
+    ctx.globalCompositeOperation = "source-over";
+    ctx.fillStyle = "#fff";
+    nums.querySelectorAll("span").forEach((el) => {
+      const node = el.firstChild;
+      if (!node || node.nodeType !== 1 && node.nodeType !== 3) return;
+      if (node.nodeType !== 3) return;
+      const style = window.getComputedStyle(el);
+      ctx.font = style.font || `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+      ctx.textBaseline = "top";
+      ctx.textAlign = "left";
+      ctx.globalAlpha = el.classList.contains("count-colon") ? 0.88 : 1;
+      const text = el.textContent || "";
+      for (let i = 0; i < text.length; i += 1) {
+        if (text[i] === " ") continue;
+        const range = document.createRange();
+        range.setStart(node, i);
+        range.setEnd(node, i + 1);
+        const r = range.getBoundingClientRect();
+        ctx.fillText(text[i], r.left - box.left, r.top - box.top);
+      }
+    });
+    ctx.restore();
+  }
+
+  function drawDrops() {
+    for (let i = 0; i < drops.length; i += 1) {
+      const d = drops[i];
+      const stretch = Math.min(2.4, 1 + Math.abs(d.vy) * 0.16);
+      const alpha = Math.max(0.18, d.life / d.max);
+      ctx.save();
+      ctx.translate(d.x, d.y);
+      ctx.scale(1, stretch);
+      const g = ctx.createRadialGradient(0, -d.r * 0.3, 0.2, 0, 0, d.r * 1.15);
+      g.addColorStop(0, `rgba(210, 86, 96, ${0.9 * alpha})`);
+      g.addColorStop(0.55, `rgba(158, 26, 50, ${0.82 * alpha})`);
+      g.addColorStop(1, `rgba(88, 12, 24, ${0.1 * alpha})`);
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(0, 0, d.r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+
+  function frame(now) {
+    if (!running) return;
+    const dt = Math.min(0.033, (now - lastT) / 1000 || 0.016);
+    lastT = now;
+    spawnStream(dt);
+    stepDrops();
+    stepWave();
+    ctx.clearRect(0, 0, width, height);
+    drawGlyphs();
+    ctx.globalCompositeOperation = "source-atop";
+    drawDrops();
+    drawPool();
+    ctx.globalCompositeOperation = "source-over";
+    window.requestAnimationFrame(frame);
+  }
+
+  function start() {
+    if (running) return;
+    running = true;
+    lastT = performance.now();
+    window.requestAnimationFrame(frame);
+  }
+
+  function stop() {
+    running = false;
+  }
+
+  sizeCanvas();
+  const ro = new ResizeObserver(sizeCanvas);
+  ro.observe(wrap);
+
+  const io = new IntersectionObserver(
+    (entries) => {
+      const on = entries.some((e) => e.isIntersecting);
+      if (on) {
+        if (!seen) {
+          seen = true;
+          hitWave(width * 0.5, 1.6);
+        }
+        start();
+      } else {
+        stop();
+      }
+    },
+    { threshold: 0.2 }
+  );
+  io.observe(wrap);
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) stop();
+    else if (seen) start();
   });
 }
 
@@ -588,7 +956,7 @@ function setupBackgroundScroll() {
   const mainShell = document.querySelector(".invite-shell");
   const img = track.querySelector("img");
   let ticking = false;
-  const BG_RATIO = 1024 / 512; // background.png
+  const BG_RATIO = 1024 / 570; // background.png (570x1024)
 
   if ("scrollRestoration" in history) {
     history.scrollRestoration = "manual";
@@ -638,7 +1006,6 @@ function setupBackgroundScroll() {
 
   function syncBgShellBox() {
     syncColumnBox(bgShell);
-    syncColumnBox(document.getElementById("invite-fx"));
   }
 
   /**
@@ -748,13 +1115,99 @@ function setupBackgroundScroll() {
   }
 }
 
+function decodeInviteParam(value) {
+  if (!value) return "";
+  let text = value.replace(/\+/g, " ").trim();
+  try {
+    text = decodeURIComponent(text);
+  } catch {
+    return "";
+  }
+  return text.trim();
+}
+
+function setupCoverGuestName() {
+  const el = document.getElementById("cover-guest-name");
+  if (!el) return;
+
+  const params = new URLSearchParams(window.location.search);
+  const name = decodeInviteParam(params.get("name"));
+  if (!name) return;
+
+  const line2 = decodeInviteParam(params.get("l2"));
+  const wrap = params.get("wrap") === "1";
+  const hasTildeBreak = name.includes("~");
+
+  el.classList.add("has-name");
+
+  if (hasTildeBreak || line2) {
+    el.classList.add("is-wrap");
+    const lines = hasTildeBreak
+      ? name.split("~").map((line) => line.trim()).filter(Boolean)
+      : [name];
+    if (line2) lines.push(line2);
+    renderCoverGuestNameLines(el, lines);
+    return;
+  }
+
+  if (wrap) {
+    el.classList.add("is-wrap");
+    el.textContent = name;
+    return;
+  }
+
+  el.textContent = name;
+  fitCoverGuestName(el);
+
+  window.addEventListener("resize", () => fitCoverGuestName(el));
+  if (typeof ResizeObserver !== "undefined") {
+    const ro = new ResizeObserver(() => fitCoverGuestName(el));
+    ro.observe(el);
+    if (el.parentElement) ro.observe(el.parentElement);
+  }
+}
+
+function renderCoverGuestNameLines(el, lines) {
+  el.replaceChildren();
+  lines.forEach((line, index) => {
+    if (index > 0) el.appendChild(document.createElement("br"));
+    el.appendChild(document.createTextNode(line));
+  });
+}
+
+function fitCoverGuestName(el) {
+  if (!el || el.classList.contains("is-wrap")) return;
+
+  const maxSize = 40;
+  const minSize = 16;
+  el.style.fontSize = "";
+
+  const computed = window.getComputedStyle(el);
+  let size = parseFloat(computed.fontSize) || maxSize;
+  size = Math.min(size, maxSize);
+
+  el.style.fontSize = `${size}px`;
+
+  while (size > minSize && el.scrollWidth > el.clientWidth + 1) {
+    size -= 1;
+    el.style.fontSize = `${size}px`;
+  }
+}
+
 function setupInviteEnvelope() {
   const home = document.getElementById("home");
   const openBtn = document.getElementById("open-invite-btn");
+  const gate = document.getElementById("cover-gate");
   if (!home || !openBtn) {
     document.body.classList.remove("invite-locked");
+    document.documentElement.classList.remove("invite-locked");
     return;
   }
+
+  document.body.classList.add("invite-locked");
+  document.documentElement.classList.add("invite-locked");
+
+  const OPEN_MS = 6700;
 
   function finishOpen() {
     home.classList.remove("is-sealed");
@@ -762,326 +1215,137 @@ function setupInviteEnvelope() {
     home.classList.remove("is-opening");
     openBtn.disabled = true;
     openBtn.setAttribute("aria-label", "Thiep da mo");
-    const openScene = document.getElementById("envelope-open-scene");
-    if (openScene) openScene.removeAttribute("aria-hidden");
     window.dispatchEvent(new Event("resize"));
   }
 
-  function openInvite() {
+  function startMusicNow() {
+    if (typeof window.__inviteStartMusic === "function") {
+      return window.__inviteStartMusic();
+    }
+    return Promise.resolve(false);
+  }
+
+  function showLayouts() {
+    home.classList.add("is-layout-ready");
+    document.body.classList.remove("invite-locked");
+    document.documentElement.classList.remove("invite-locked");
+    finishOpen();
+  }
+
+  // Chỉ trượt hai cánh — chưa hiện layout / chưa mở khoá cuộn
+  function openPanels() {
     if (home.dataset.opening === "1") return;
     home.dataset.opening = "1";
-
-    const closedImg = document.getElementById("envelope-closed");
-    if (closedImg) closedImg.classList.remove("is-active");
-
     home.classList.add("is-opening");
-    // Phát nhạc ngay trong cử chỉ bấm mở thiệp (trình duyệt cho phép autoplay)
-    if (typeof window.__inviteStartMusic === "function") {
-      window.__inviteStartMusic();
-    }
-    if (typeof window.__inviteBoostFall === "function") {
-      window.__inviteBoostFall();
-    }
-    playOpenEffects();
 
     setTimeout(() => {
-      document.body.classList.remove("invite-locked");
-      finishOpen();
-    }, 1850);
+      home.classList.remove("is-sealed");
+      home.classList.add("is-opened");
+      home.classList.remove("is-opening");
+      openBtn.disabled = true;
+      openBtn.setAttribute("aria-label", "Thiep da mo");
+    }, OPEN_MS);
   }
 
-  // Vào trang là chuỗi mở màn tự chạy; chạm vào thiệp là mở luôn
-  const INTRO_MS = 2150; // bằng độ dài chuỗi animation trong styles.css
-  let introDone = false;
+  async function startFlowFromTap() {
+    if (home.dataset.flow === "1") return;
+    home.dataset.flow = "1";
 
-  function endIntro() {
-    introDone = true;
-    home.classList.add("is-intro-done");
+    if (gate) gate.classList.add("is-done");
+    startMusicNow();
+
+    const intro = document.getElementById("cover-intro");
+    if (intro) intro.classList.add("is-active");
+
+    openPanels();
+    await runCoverIntro();
+    showLayouts();
   }
-
-  function playIntro() {
-    home.classList.add("is-intro");
-    setTimeout(endIntro, INTRO_MS);
-  }
-
-  openBtn.addEventListener("click", () => {
-    // Chạm sớm thì chốt luôn chuỗi mở màn để không mất chữ nào
-    if (!introDone) endIntro();
-    openInvite();
-  });
 
   if (new URLSearchParams(window.location.search).get("open") === "1") {
-    const closedImg = document.getElementById("envelope-closed");
-    if (closedImg) closedImg.classList.remove("is-active");
-    document.body.classList.remove("invite-locked");
-    home.classList.add("is-intro");
-    endIntro();
+    if (gate) gate.classList.add("is-done");
+    const intro = document.getElementById("cover-intro");
+    if (intro) intro.classList.add("is-done");
     home.dataset.opening = "1";
-    finishOpen();
+    home.dataset.flow = "1";
+    showLayouts();
+    startMusicNow();
+    return;
+  }
+
+  if (gate) {
+    gate.addEventListener("click", startFlowFromTap);
   } else {
-    playIntro();
-  }
-}
-
-function playOpenEffects() {
-  const layer = document.getElementById("invite-fx");
-  if (!layer) return;
-
-  const origin = getEnvelopeOrigin(layer);
-  shootHearts(layer, origin, { count: 22, includeHi: true });
-  // Mưa nhẹ lúc mở (ít hơn ambient thường)
-  for (let i = 0; i < 5; i++) {
-    setTimeout(() => {
-      if (typeof window.__inviteSpawnFall === "function") window.__inviteSpawnFall();
-    }, 60 + i * 140);
-  }
-  setTimeout(() => launchFireworks(layer, origin), 180);
-  setTimeout(() => launchFireworks(layer, {
-    x: origin.x + (Math.random() * 80 - 40),
-    y: origin.y - 40 - Math.random() * 60,
-  }), 520);
-  setTimeout(() => launchFireworks(layer, {
-    x: origin.x + (Math.random() * 100 - 50),
-    y: origin.y - 20 - Math.random() * 50,
-  }), 860);
-}
-
-/** Mưa trái tim + 囍 — chỉ trong cột thẻ; khi thiệp đóng phải luôn chạy */
-function setupAmbientFall() {
-  const layer = document.getElementById("invite-fx");
-  const stopAt = document.getElementById("wedding-info-section");
-  const home = document.getElementById("home");
-  const mainShell = document.querySelector(".invite-shell");
-  if (!layer) return;
-
-  const heartColors = ["#C98989", "#B87474", "#E8A0A0", "#D4A0A0", "#F5D0D0"];
-  const hiColors = ["#B87474", "#C98989", "#8B4A4A"];
-  let timer = 0;
-  let burstTimer = 0;
-  let allowed = true;
-
-  function syncFxBox() {
-    if (!mainShell) return;
-    const rect = mainShell.getBoundingClientRect();
-    const w = Math.max(1, Math.round(rect.width));
-    layer.style.left = `${Math.round(rect.left)}px`;
-    layer.style.width = `${w}px`;
-    layer.style.right = "auto";
-    layer.style.marginLeft = "0";
-    layer.style.transform = "none";
-  }
-
-  function fallDistancePx() {
-    if (document.body.classList.contains("invite-locked") || isStillSealed()) {
-      return Math.round(window.innerHeight * 0.78);
-    }
-    if (!stopAt) return Math.round(window.innerHeight * 0.62);
-    const top = stopAt.getBoundingClientRect().top + window.scrollY;
-    return Math.max(220, Math.min(Math.round(top * 0.92), Math.round(window.innerHeight * 0.75)));
-  }
-
-  function isStillSealed() {
-    return home && home.classList.contains("is-sealed") && home.dataset.opening !== "1";
-  }
-
-  function spawnFall(forceHi) {
-    if (!allowed) return;
-    const el = document.createElement("span");
-    const isHi = forceHi === true ? true : forceHi === false ? false : Math.random() < 0.28;
-    el.className = isHi ? "fx-fall fx-fall-hi" : "fx-fall fx-fall-heart";
-    if (isHi) el.textContent = "囍";
-    else fillHeartMark(el);
-    el.style.left = `${6 + Math.random() * 88}%`;
-    el.style.setProperty("--sway", `${(Math.random() * 50 - 25).toFixed(1)}px`);
-    el.style.setProperty("--fall", `${fallDistancePx()}px`);
-    el.style.setProperty(
-      "--size",
-      isHi ? `${16 + Math.random() * 12}px` : `${13 + Math.random() * 14}px`
+    document.addEventListener(
+      "pointerdown",
+      () => {
+        startFlowFromTap();
+      },
+      { once: true, passive: true }
     );
-    el.style.setProperty("--dur", `${5.2 + Math.random() * 3}s`);
-    el.style.setProperty(
-      "--c",
-      isHi
-        ? hiColors[Math.floor(Math.random() * hiColors.length)]
-        : heartColors[Math.floor(Math.random() * heartColors.length)]
-    );
-    layer.appendChild(el);
-    el.addEventListener("animationend", () => el.remove(), { once: true });
-  }
-
-  function loop() {
-    if (!allowed) return;
-    spawnFall();
-    if (Math.random() < 0.35) spawnFall();
-    if (Math.random() < 0.28) spawnFall(true);
-    const gap = isStillSealed() ? 380 + Math.random() * 320 : 850 + Math.random() * 700;
-    timer = window.setTimeout(loop, gap);
-  }
-
-  /** Bắn tim + 囍 quanh thiệp khi còn đóng */
-  function sealedBurst() {
-    if (!allowed || !isStillSealed()) return;
-    syncFxBox();
-    const origin = getEnvelopeOrigin(layer);
-    shootHearts(layer, origin, { count: 16, includeHi: true });
-  }
-
-  function sealedBurstLoop() {
-    if (!isStillSealed()) {
-      burstTimer = 0;
-      return;
-    }
-    sealedBurst();
-    burstTimer = window.setTimeout(sealedBurstLoop, 1400 + Math.random() * 900);
-  }
-
-  function setAllowed(on) {
-    allowed = on;
-    if (!on) {
-      window.clearTimeout(timer);
-      timer = 0;
-      layer.querySelectorAll(".fx-fall").forEach((n) => n.remove());
-    } else if (!timer) {
-      loop();
-    }
-  }
-
-  function syncByScroll() {
-    syncFxBox();
-    // Thiệp đóng: section lễ cưới bị display:none → rect = 0; phải luôn cho chạy
-    if (document.body.classList.contains("invite-locked") || isStillSealed()) {
-      if (!allowed) setAllowed(true);
-      return;
-    }
-    if (!stopAt) return;
-    const rect = stopAt.getBoundingClientRect();
-    const shouldRun = rect.top > window.innerHeight * 0.42;
-    if (shouldRun !== allowed) setAllowed(shouldRun);
-  }
-
-  syncFxBox();
-
-  // Xuất hiện sớm + nhiều hơn (~8–9 hạt seed)
-  for (let i = 0; i < 9; i++) {
-    setTimeout(() => spawnFall(i % 3 === 0), i * 90);
-  }
-  loop();
-
-  // Burst ngay gần đầu + lặp khi còn đóng
-  setTimeout(sealedBurst, 120);
-  burstTimer = window.setTimeout(sealedBurstLoop, 1100);
-
-  window.addEventListener("scroll", syncByScroll, { passive: true });
-  window.addEventListener("resize", syncByScroll);
-  syncByScroll();
-
-  if (home) {
-    const mo = new MutationObserver(syncByScroll);
-    mo.observe(home, { attributes: true, attributeFilter: ["class", "data-opening"] });
-  }
-  const bodyMo = new MutationObserver(syncByScroll);
-  bodyMo.observe(document.body, { attributes: true, attributeFilter: ["class"] });
-
-  window.__inviteSpawnFall = spawnFall;
-  window.__inviteBoostFall = function boostFall() {
-    window.clearTimeout(burstTimer);
-    burstTimer = 0;
-    if (!allowed) return;
-    for (let i = 0; i < 10; i++) {
-      setTimeout(() => spawnFall(i % 3 === 0), i * 90);
-    }
-  };
-}
-
-function getEnvelopeOrigin(layer) {
-  const stage = document.getElementById("envelope-stage") || document.getElementById("open-invite-btn");
-  const layerRect = layer ? layer.getBoundingClientRect() : null;
-  if (!stage) {
-    return {
-      x: layerRect ? layerRect.width / 2 : window.innerWidth / 2,
-      y: layerRect ? layerRect.height * 0.45 : window.innerHeight * 0.45,
-    };
-  }
-  const rect = stage.getBoundingClientRect();
-  const ox = layerRect ? layerRect.left : 0;
-  const oy = layerRect ? layerRect.top : 0;
-  return {
-    x: rect.left + rect.width / 2 - ox,
-    y: rect.top + rect.height * 0.42 - oy,
-  };
-}
-
-/** Tim SVG — tránh emoji đỏ trên iOS/Android, màu theo CSS currentColor */
-function fillHeartMark(el) {
-  el.innerHTML =
-    '<svg class="fx-heart-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
-    '<path fill="currentColor" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>' +
-    "</svg>";
-}
-
-function shootHearts(layer, origin, opts) {
-  const colors = ["#C98989", "#B87474", "#E8A0A0", "#D4A0A0", "#F5D0D0", "#8B4A4A"];
-  const hiColors = ["#B87474", "#C98989", "#8B4A4A"];
-  const count = (opts && opts.count) || 28;
-  const includeHi = !!(opts && opts.includeHi);
-
-  for (let i = 0; i < count; i++) {
-    const el = document.createElement("span");
-    const isHi = includeHi && i % 4 === 0;
-    el.className = isHi ? "fx-heart fx-hi-shot" : "fx-heart";
-    if (isHi) el.textContent = "囍";
-    else fillHeartMark(el);
-
-    const angle = (-Math.PI / 2) + (Math.random() - 0.5) * Math.PI * 1.2;
-    const dist = 70 + Math.random() * 130;
-    const dx = Math.cos(angle) * dist;
-    const dy = Math.sin(angle) * dist - (30 + Math.random() * 70);
-
-    el.style.setProperty("--x", `${origin.x}px`);
-    el.style.setProperty("--y", `${origin.y}px`);
-    el.style.setProperty("--dx", `${dx}px`);
-    el.style.setProperty("--dy", `${dy}px`);
-    el.style.setProperty("--rot", `${(Math.random() * 70 - 35).toFixed(1)}deg`);
-    el.style.setProperty(
-      "--size",
-      isHi ? `${16 + Math.random() * 12}px` : `${14 + Math.random() * 14}px`
-    );
-    el.style.setProperty(
-      "--c",
-      isHi ? hiColors[i % hiColors.length] : colors[i % colors.length]
-    );
-    el.style.setProperty("--dur", `${1.15 + Math.random() * 0.7}s`);
-    el.style.animationDelay = `${Math.random() * 0.22}s`;
-
-    layer.appendChild(el);
-    el.addEventListener("animationend", () => el.remove(), { once: true });
   }
 }
 
-function launchFireworks(layer, origin) {
-  const palette = ["#FFFFFF", "#F5D0D0", "#E8C4C4", "#C98989", "#D4B896", "#FDEAEA", "#B87474"];
-  const boom = document.createElement("span");
-  boom.className = "fx-boom";
-  boom.style.setProperty("--x", `${origin.x}px`);
-  boom.style.setProperty("--y", `${origin.y}px`);
-  layer.appendChild(boom);
-  boom.addEventListener("animationend", () => boom.remove(), { once: true });
-
-  const sparks = 22 + Math.floor(Math.random() * 10);
-  for (let i = 0; i < sparks; i++) {
-    const el = document.createElement("span");
-    el.className = "fx-spark";
-    const angle = (Math.PI * 2 * i) / sparks + Math.random() * 0.2;
-    const dist = 50 + Math.random() * 110;
-    el.style.setProperty("--x", `${origin.x}px`);
-    el.style.setProperty("--y", `${origin.y}px`);
-    el.style.setProperty("--dx", `${Math.cos(angle) * dist}px`);
-    el.style.setProperty("--dy", `${Math.sin(angle) * dist}px`);
-    el.style.setProperty("--size", `${3 + Math.random() * 5}px`);
-    el.style.setProperty("--c", palette[i % palette.length]);
-    el.style.setProperty("--dur", `${0.85 + Math.random() * 0.55}s`);
-    el.style.animationDelay = `${Math.random() * 0.08}s`;
-    layer.appendChild(el);
-    el.addEventListener("animationend", () => el.remove(), { once: true });
+/** Intro: gõ từng dòng — trả Promise khi xong */
+function runCoverIntro() {
+  const intro = document.getElementById("cover-intro");
+  if (!intro || intro.classList.contains("is-done")) {
+    return Promise.resolve();
   }
+
+  const lines = Array.from(intro.querySelectorAll(".intro-line[data-type]"));
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function wait(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  function typeLine(el, text, speed) {
+    return new Promise((resolve) => {
+      el.textContent = "";
+      el.classList.add("is-typing");
+      let i = 0;
+      const tick = () => {
+        if (i >= text.length) {
+          el.classList.remove("is-typing");
+          resolve();
+          return;
+        }
+        el.textContent += text.charAt(i);
+        i += 1;
+        setTimeout(tick, speed);
+      };
+      tick();
+    });
+  }
+
+  return (async () => {
+    intro.classList.add("is-active");
+    const theImg = intro.querySelector(".intro-the");
+
+    if (reduceMotion) {
+      lines.forEach((el) => {
+        el.textContent = el.getAttribute("data-type") || "";
+      });
+      if (theImg) theImg.classList.add("is-shown");
+      await wait(2400);
+    } else {
+      await wait(600);
+      for (const el of lines) {
+        const text = el.getAttribute("data-type") || "";
+        const speed = el.classList.contains("intro-date") ? 120 : 130;
+        await typeLine(el, text, speed);
+        if (el.classList.contains("intro-save") && theImg) {
+          theImg.classList.add("is-shown");
+          await wait(350);
+        } else {
+          await wait(700);
+        }
+      }
+      await wait(3000);
+    }
+
+    intro.classList.remove("is-active");
+    intro.classList.add("is-done");
+  })();
 }

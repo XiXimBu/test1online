@@ -1,0 +1,334 @@
+/* =========================================================
+   responsive.css — breakpoint rules tách từ styles.css
+   Load SAU styles.css
+   ========================================================= */
+
+@media (min-width: 768px) {
+            body {
+                background-attachment: fixed;
+            }
+        }
+
+@media (min-width: 401px) {
+            .invite-shell-bg {
+                width: min(100%, 400px);
+            }
+            .invite-shell {
+                max-width: 400px;
+                border: none;
+                box-shadow: 0 16px 64px rgba(201, 180, 140, 0.4);
+            }
+        }
+
+@media (max-width: 300px) {
+            .invite-paper-block .paper-branch {
+                top: -78px;
+            }
+        }
+
+@media (min-width: 768px) {
+            .invite-paper-layer {
+                inset: 16px 24px;
+                border-radius: 30px 30px 20px 20px;
+            }
+            .invite-paper-content {
+                margin: 16px 24px;
+                padding: 40px 20px 32px;
+                gap: 28px;
+            }
+            .paper-branch {
+                top: -90px;
+                left: -6%;
+                width: 46%;
+            }
+            .paper-leaf {
+                right: -4%;
+                bottom: -24px;
+                width: 28%;
+            }
+            .paper-section .paper-inner {
+                max-width: 400px;
+                gap: 28px;
+            }
+        }
+
+@media (max-width: 480px) {
+            .invite-shell {
+                --couple-line-w: min(100%, 100%);
+                --couple-card-w: min(100%, 300px);
+                --couple-hint-w: 100%;
+                --couple-name-size: clamp(15px, 4.6vw, 20px);
+                --couple-name-gap: 0.12em;
+                --couple-nudge-x: 0px;
+            }
+            #closing-couple .footer-couple-name {
+                width: 100%;
+                max-width: 100%;
+            }
+        }
+
+@media (min-width: 481px) and (max-width: 767px) {
+            .invite-shell {
+                --couple-line-w: min(100%, 100%);
+                --couple-card-w: min(100%, 340px);
+                --couple-hint-w: 100%;
+                --couple-name-size: clamp(18px, 4.5vw, 26px);
+                --couple-name-gap: 0.18em;
+                --couple-nudge-x: 0px;
+            }
+            #closing-couple .footer-couple-name {
+                width: 100%;
+                max-width: 100%;
+            }
+        }
+
+@media (min-width: 768px) and (max-width: 1023px) {
+            .invite-shell {
+                --couple-line-w: min(86vw, 560px);
+                --couple-card-w: min(100%, 420px);
+                --couple-hint-w: min(100%, 560px);
+                --couple-name-size: clamp(24px, 3.4vw, 32px);
+                --couple-name-gap: 0.22em;
+                --couple-nudge-x: 0px;
+            }
+            #closing-couple .footer-couple-name {
+                width: min(100%, var(--couple-hint-w));
+                max-width: 100%;
+                overflow: visible;
+            }
+        }
+
+@media (min-width: 1024px) and (max-width: 1440px) {
+            .invite-shell {
+                --couple-line-w: min(56vw, 560px);
+                --couple-card-w: min(100%, 460px);
+                --couple-hint-w: min(100%, 560px);
+                --couple-name-size: clamp(28px, 2.6vw, 40px);
+                --couple-name-gap: 0.26em;
+                --couple-nudge-x: 0px;
+            }
+            #closing-couple .footer-couple-name {
+                overflow: visible;
+            }
+        }
+
+@media (min-width: 1441px) {
+            .invite-shell {
+                --couple-line-w: min(42vw, 600px);
+                --couple-card-w: min(100%, 480px);
+                --couple-hint-w: min(100%, 600px);
+                --couple-name-size: clamp(32px, 2.2vw, 44px);
+                --couple-name-gap: 0.3em;
+                --couple-nudge-x: 0px;
+            }
+            #closing-couple .footer-couple-name {
+                overflow: visible;
+            }
+        }
+
+@media (min-width: 768px) {
+            .footer-couple-name .name-amp-img {
+                height: 1.7em;
+                max-width: 2.35em;
+            }
+            .paper-section .name-ring-img {
+                width: clamp(72px, 8vw, 100px);
+                max-width: 100px;
+            }
+        }
+
+@media (min-width: 768px) {
+            .floral-invite-inner {
+                padding: 26% 15% 22%;
+            }
+        }
+
+@media (min-width: 768px) {
+            .couple-name-row {
+                grid-template-columns: auto auto auto;
+                overflow: visible;
+            }
+        }
+
+@media (max-width: 767px) {
+            .couple-name-row .closing-groom,
+            .couple-name-row .closing-bride {
+                overflow: hidden;
+            }
+        }
+
+@media (min-width: 768px) {
+            .couple-name-row .closing-groom,
+            .couple-name-row .closing-bride {
+                overflow: visible;
+                min-width: max-content;
+            }
+        }
+
+@media (min-width: 768px) {
+            .hero-names .hero-name.couple-name {
+                font-size: 2.75rem !important;
+            }
+            .hero-name-amp {
+                font-size: 2.1rem !important;
+            }
+        }
+
+@media (min-width: 768px) {
+            .couple-names-block {
+                gap: 0.7rem;
+            }
+        }
+
+@media (max-width: 360px) {
+            .paper-section .couple-name {
+                font-size: clamp(18px, 6vw, 24px);
+                padding-inline: 0;
+            }
+            .paper-section .couple-role {
+                font-size: clamp(16px, 5vw, 22px);
+            }
+            .paper-section .name-ring-img {
+                width: clamp(40px, 14vw, 56px);
+                max-width: 56px;
+            }
+            .couple-names-block {
+                padding: 0 2px;
+                overflow: hidden;
+                max-width: 100%;
+            }
+        }
+
+@media (max-width: 767px) {
+            .wi-from-left {
+                transform: translate3d(-28px, 0, 0);
+            }
+            .wi-from-right {
+                transform: translate3d(28px, 0, 0);
+            }
+            #closing-couple .closing-groom {
+                transform: translate3d(-28px, 0, 0);
+            }
+            #closing-couple .closing-bride {
+                transform: translate3d(28px, 0, 0);
+            }
+            @keyframes wi-slide-left {
+                from { opacity: 0; transform: translate3d(-28px, 0, 0); }
+                to { opacity: 1; transform: translate3d(0, 0, 0); }
+            }
+            @keyframes wi-slide-right {
+                from { opacity: 0; transform: translate3d(28px, 0, 0); }
+                to { opacity: 1; transform: translate3d(0, 0, 0); }
+            }
+            @keyframes closing-from-left {
+                from { opacity: 0; transform: translate3d(-28px, 0, 0); }
+                to { opacity: 1; transform: translate3d(0, 0, 0); }
+            }
+            @keyframes closing-from-right {
+                from { opacity: 0; transform: translate3d(28px, 0, 0); }
+                to { opacity: 1; transform: translate3d(0, 0, 0); }
+            }
+        }
+
+@media (max-width: 360px) {
+            #lixi-hint {
+                margin-top: 0.75rem;
+                position: relative;
+                z-index: 2;
+            }
+            .lixi-boards {
+                width: min(100%, 360px);
+            }
+            .lixi-board.is-horizontal {
+                gap: 10px;
+                padding: 14px 12px;
+            }
+            .lixi-preview-qr {
+                width: clamp(84px, 26vw, 100px);
+            }
+            .lixi-preview-value,
+            .lixi-preview-account {
+                font-size: 13px;
+            }
+        }
+
+@media (min-width: 768px) {
+            .lixi-boards {
+                width: min(90%, 440px);
+            }
+            .lixi-board.is-horizontal {
+                gap: 12px;
+                padding: 16px 18px;
+            }
+            .lixi-preview-qr {
+                width: 132px;
+            }
+            .lixi-preview-copy {
+                padding: 4px 8px;
+                font-size: 8px;
+            }
+        }
+
+@media (min-width: 480px) and (max-width: 767px) {
+            .lixi-boards {
+                width: min(94%, 420px);
+            }
+            .lixi-preview-qr {
+                width: clamp(104px, 26vw, 120px);
+            }
+            .lixi-preview-value,
+            .lixi-preview-account {
+                font-size: 14px;
+            }
+        }
+
+/* RSVP select — fix dropdown trên mobile */
+@media (max-width: 767px) {
+  #rsvp.invite-paper-block,
+  #rsvp .invite-paper-layer,
+  #rsvp .invite-paper-content,
+  #rsvp .rsvp-panel,
+  #rsvp .rsvp-form,
+  #rsvp .rsvp-field {
+    overflow: visible;
+  }
+  .rsvp-select-wrap {
+    position: relative;
+    width: 100%;
+    z-index: 2;
+  }
+  .rsvp-select {
+    width: 100%;
+    max-width: 100%;
+    min-height: 44px;
+    font-size: 16px;
+    line-height: 1.35;
+    padding: 0.7rem 2.5rem 0.7rem 0.85rem;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .rsvp-input {
+    font-size: 16px;
+  }
+}
+
+@media (min-width: 768px) {
+  .rsvp-panel {
+    max-width: 460px;
+    padding-top: 0.75rem;
+  }
+  .rsvp-choice {
+    grid-template-columns: 1fr 1fr;
+  }
+  .rsvp-choice-item {
+    min-height: 100%;
+    align-items: flex-start;
+  }
+  .rsvp-choice-item span {
+    font-size: 15px;
+  }
+  .rsvp-select-wrap {
+    z-index: 1;
+  }
+}
+

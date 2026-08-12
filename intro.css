@@ -1,0 +1,801 @@
+/* =========================================================
+   intro.css — mở thiệp + intro + cover gate/slider
+   Tách từ styles.css — load sau styles/responsive, trước hoặc cùng animation
+   ========================================================= */
+
+/* --- home states --- */
+/* Thư mời cưới = thiệp trong #home (1 trang tĩnh) */
+        #home.is-sealed {
+            min-height: 100svh;
+            min-height: 100dvh;
+            height: 100svh;
+            height: 100dvh;
+            justify-content: center;
+            padding-top: 0;
+            padding-bottom: 0;
+            /* Bỏ padding ngang — tránh lộ nền 2 bên (vd 473×1268) */
+            padding-left: 0;
+            padding-right: 0;
+            overflow: hidden;
+        }
+        /* Lúc mở thiệp giữ y nguyên khung layout của lúc còn đóng → không gì bị xê dịch */
+        #home.is-opening,
+        #home.is-opened {
+            min-height: 100svh;
+            justify-content: center;
+            padding-top: 0;
+            padding-bottom: 2rem;
+            padding-left: 0;
+            padding-right: 0;
+            overflow-x: clip;
+            overflow-y: visible;
+            height: auto;
+        }
+
+/* --- invite-locked --- */
+body.invite-locked {
+            overflow: hidden;
+            height: 100%;
+            height: 100dvh;
+            overscroll-behavior: none;
+        }
+        html.invite-locked {
+            overflow: hidden;
+            height: 100%;
+            height: 100dvh;
+        }
+        /* Ban đầu chỉ hiện thiệp — ẩn toàn bộ phần còn lại */
+        body.invite-locked aside,
+        body.invite-locked .invite-shell > *:not(#home) {
+            display: none !important;
+        }
+
+/* --- hi-leap/seal --- */
+/* 囍 leap + glow when opening */
+
+        .hi-leap {
+            position: fixed;
+            z-index: 260;
+            left: 50%;
+            top: 42%;
+            color: #9E1A32;
+            font-family: "Playfair Display", "Times New Roman", serif;
+            font-size: clamp(52px, 14vw, 104px);
+            line-height: 1;
+            pointer-events: none;
+            will-change: transform, opacity, filter;
+            animation: hi-leap 0.95s cubic-bezier(0.22, 0.9, 0.3, 1) forwards;
+        }
+        #invite-envelope .seal.is-firing {
+            animation: none;
+            transform: translate(-50%, -35%) scale(1.15);
+            box-shadow:
+                0 0 18px rgba(243, 239, 231, 0.95),
+                0 0 36px rgba(185, 154, 104, 0.8),
+                inset 0 2px 4px rgba(255,255,255,0.35);
+            filter: brightness(1.25);
+            transition: transform 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease;
+        }
+
+/* --- cover/intro main --- */
+/* ===== Mở thiệp: hai cánh trái/phải ===== */
+/*
+  Ảnh mới left 849×1810, right 827×1902 (đã cắt góc sẵn).
+  Scale COVER trong cột: luôn full cột, không nền kem che.
+*/
+.cover-stage {
+  position: relative;
+  width: 100%;
+  height: 100svh;
+  height: 100dvh;
+  min-height: 100svh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: transparent;
+}
+
+/* Nội dung lộ ra sau intro: slider album */
+.cover-reveal {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  padding: 0;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 1s ease, transform 1s ease;
+  pointer-events: none;
+  overflow: hidden;
+}
+#home.is-layout-ready .cover-reveal {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+.cover-reveal.hero-slider {
+  display: block;
+  padding-top: 0;
+  box-sizing: border-box;
+  isolation: isolate;
+}
+#home.is-layout-ready .cover-reveal.hero-slider {
+  z-index: 4;
+}
+.hero-slider-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: contain;
+  object-position: center top;
+  margin: 0;
+  padding: 0;
+  z-index: 8;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.hero-slider-viewport {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 1;
+  -webkit-mask-image: linear-gradient(
+    180deg,
+    #000 0%,
+    #000 calc(100% - 3px),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    180deg,
+    #000 0%,
+    #000 calc(100% - 3px),
+    transparent 100%
+  );
+}
+.hero-slider-track {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  transition: transform 0.7s cubic-bezier(0.22, 0.7, 0.25, 1);
+  will-change: transform;
+}
+.hero-slide {
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+.hero-slide img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  user-select: none;
+  -webkit-user-drag: none;
+  pointer-events: none;
+}
+.hero-slider-hit {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 50%;
+  z-index: 3;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.hero-slider-fade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 42%;
+  z-index: 7;
+  pointer-events: none;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0 1rem 10%;
+  box-sizing: border-box;
+  background: none;
+}
+.hero-slider-name {
+  position: relative;
+  z-index: 1;
+  width: min(98%, 440px);
+  height: auto;
+  display: block;
+  object-fit: contain;
+  object-position: center bottom;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* Cùng box với cột background */
+.cover-open {
+  position: relative;
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
+#home.is-opening .cover-open,
+#home.is-opened .cover-open {
+  cursor: default;
+  pointer-events: none;
+}
+
+/*
+  Cánh trái rộng hơn (~64%) + đè sâu sang phải.
+  Seal nằm đúng mép đè.
+*/
+.cover-panels-fit {
+  --cover-seam: 64%;
+  --cover-overlap: clamp(28px, 7.5vw, 44px);
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: var(--cover-seam) 1fr;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Bóng mềm trên cánh phải (dưới mép đè) — tạo cảm giác fold */
+.cover-panels-fit::before {
+  content: "";
+  position: absolute;
+  left: var(--cover-seam);
+  top: 0;
+  z-index: 1;
+  width: calc(var(--cover-overlap) + 14px);
+  height: 100%;
+  margin-left: calc(var(--cover-overlap) * -0.2);
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    rgba(72, 56, 40, 0.14) 0%,
+    rgba(72, 56, 40, 0.06) 42%,
+    rgba(72, 56, 40, 0.015) 72%,
+    transparent 100%
+  );
+  opacity: 1;
+  transition: opacity 0.9s ease;
+}
+#home.is-opening .cover-panels-fit::before,
+#home.is-opened .cover-panels-fit::before {
+  opacity: 0;
+}
+
+.cover-left-wrap {
+  position: relative;
+  z-index: 3;
+  width: calc(100% + var(--cover-overlap));
+  height: 100%;
+  min-width: 0;
+  overflow: visible;
+  will-change: transform;
+  transition: transform 6.5s cubic-bezier(0.19, 0.72, 0.24, 1);
+  transform: translateX(0);
+  box-shadow:
+    2px 0 12px rgba(110, 98, 84, 0.06),
+    1px 0 4px rgba(110, 98, 84, 0.04);
+}
+
+/* Mép gấp: highlight sáng + đường seam rất mỏng */
+.cover-left-wrap::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 3;
+  width: 1px;
+  height: 100%;
+  pointer-events: none;
+  background: rgba(255, 250, 242, 0.55);
+  box-shadow:
+    -1px 0 0 rgba(255, 252, 246, 0.28),
+    1px 0 0 rgba(90, 70, 50, 0.1);
+  opacity: 1;
+  transition: opacity 0.9s ease;
+}
+
+/* Highlight mép đè + bóng đổ rất nhẹ sang phải */
+.cover-left-wrap::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 2;
+  width: calc(var(--cover-overlap) + 12px);
+  height: 100%;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 252, 245, 0.08) 35%,
+    rgba(255, 255, 255, 0.22) 68%,
+    rgba(255, 255, 255, 0.12) 88%,
+    rgba(80, 60, 42, 0.05) 100%
+  );
+  box-shadow:
+    3px 0 10px rgba(55, 42, 30, 0.1),
+    1px 0 3px rgba(55, 42, 30, 0.07);
+  opacity: 1;
+  transition: opacity 0.9s ease;
+}
+#home.is-opening .cover-left-wrap::before,
+#home.is-opening .cover-left-wrap::after,
+#home.is-opened .cover-left-wrap::before,
+#home.is-opened .cover-left-wrap::after {
+  opacity: 0;
+}
+
+/* Đường seam / fold trên mép gấp */
+.cover-fold {
+  position: absolute;
+  right: 0;
+  top: 7%;
+  bottom: 7%;
+  width: 2px;
+  z-index: 4;
+  transform: translateX(50%);
+  pointer-events: none;
+  border-radius: 1px;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(255, 252, 247, 0.4) 14%,
+    rgba(255, 255, 255, 0.58) 50%,
+    rgba(255, 252, 247, 0.4) 86%,
+    transparent 100%
+  );
+  box-shadow:
+    -1px 0 3px rgba(110, 98, 84, 0.09),
+    1px 0 2px rgba(255, 255, 255, 0.32);
+  opacity: 1;
+  transition: opacity 0.9s ease;
+}
+#home.is-opening .cover-fold,
+#home.is-opened .cover-fold {
+  opacity: 0;
+}
+
+.cover-panel {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  border: 0;
+  outline: none;
+  box-shadow: none;
+  object-fit: cover;
+  user-select: none;
+  -webkit-user-drag: none;
+  backface-visibility: hidden;
+}
+
+.cover-left {
+  position: relative;
+  z-index: 1;
+  object-position: right center;
+  /* Trái hơi sáng / ấm hơn một chút lúc còn đóng */
+  filter: brightness(1.02) contrast(1.015) saturate(1.03);
+  transition: filter 0.9s ease;
+}
+
+.cover-right {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  object-position: left center;
+  will-change: transform;
+  transition:
+    transform 6.5s cubic-bezier(0.19, 0.72, 0.24, 1),
+    filter 0.9s ease;
+  transform: translateX(0);
+  /* Phải hơi tối / sepia nhẹ → lệch màu/texture rất nhỏ */
+  filter: brightness(0.975) sepia(0.04) saturate(0.94) contrast(0.99);
+}
+.cover-right::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    rgba(110, 98, 84, 0.05) 0%,
+    rgba(110, 98, 84, 0.018) calc(var(--cover-overlap) + 8px),
+    transparent calc(var(--cover-overlap) + 20px)
+  );
+}
+#home.is-opening .cover-left,
+#home.is-opened .cover-left,
+#home.is-opening .cover-right,
+#home.is-opened .cover-right {
+  filter: none;
+}
+
+/*
+  Seal gắn mép đè (right:0 của cánh trái).
+  translateX ~62% → tâm lệch phải như mẫu (nhiều phần nằm trên cánh phải).
+*/
+.cover-seal {
+  position: absolute;
+  right: 0;
+  left: auto;
+  top: 50%;
+  z-index: 5;
+  width: clamp(96px, 14.5vmin, 112px);
+  height: auto;
+  margin: 0;
+  padding: 0;
+  transform: translate(62%, -50%);
+  opacity: 1;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  filter:
+    drop-shadow(0 2px 4px rgba(90, 75, 55, 0.12))
+    drop-shadow(0 8px 18px rgba(110, 98, 84, 0.2));
+  will-change: transform, opacity;
+  transition:
+    transform 6.5s cubic-bezier(0.19, 0.72, 0.24, 1),
+    opacity 1.2s ease 0.15s;
+}
+
+/* Chữ Save the Date trên cánh trái */
+.cover-left-copy {
+  position: absolute;
+  left: 50%;
+  top: 18%;
+  z-index: 4;
+  width: min(78%, 220px);
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  pointer-events: none;
+  color: #C5A059;
+}
+.cover-save {
+  display: block;
+  width: min(100%, 188px);
+  height: auto;
+  margin: 0 auto 0.2rem;
+  user-select: none;
+  -webkit-user-drag: none;
+  filter: drop-shadow(0 1px 1px rgba(255, 255, 255, 0.25));
+}
+.cover-the-date {
+  margin: 0;
+  padding: 0;
+  font-family: "Playfair Display", "Cormorant Garamond", serif;
+  font-weight: 500;
+  font-size: clamp(1.55rem, 6.2vw, 2.15rem);
+  letter-spacing: 0.28em;
+  line-height: 1.15;
+  text-indent: 0.28em;
+  color: #C5A059;
+  text-shadow: 0 1px 0 rgba(255, 252, 245, 0.35);
+}
+.cover-invite-label {
+  margin: 1.35rem 0 0.35rem;
+  padding: 0;
+  font-family: "Cormorant Garamond", "Cormorant Upright", serif;
+  font-weight: 500;
+  font-size: clamp(0.72rem, 2.8vw, 0.88rem);
+  letter-spacing: 0.22em;
+  line-height: 1.2;
+  text-indent: 0.22em;
+  text-transform: uppercase;
+  color: #B99A68;
+}
+.bonheur-royale-regular {
+  font-family: "Bonheur Royale", cursive;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.cover-invite-name {
+  margin: 0.15rem auto 0;
+  padding: 0;
+  min-height: 1.35em;
+  width: min(96%, 16rem);
+  font-size: clamp(1.35rem, 6.8vw, 40px);
+  line-height: 1.1;
+  letter-spacing: 0.01em;
+  color: #C5A059;
+  text-align: center;
+  border-bottom: 1px solid rgba(185, 154, 104, 0.58);
+}
+.cover-invite-name.has-name:not(.is-wrap) {
+  white-space: nowrap;
+  overflow: hidden;
+}
+.cover-invite-name.is-wrap {
+  white-space: normal;
+  overflow: visible;
+  word-break: break-word;
+  line-height: 1.15;
+}
+.cover-invite-name.has-name {
+  border-bottom: 0;
+  padding-bottom: 0.1rem;
+}
+
+#home.is-skip-intro .cover-open,
+#home.is-skip-intro .cover-gate,
+#home.is-skip-intro .cover-intro,
+#home.is-skip-intro .cover-glitter {
+  display: none !important;
+}
+#home.is-skip-intro .cover-left-wrap,
+#home.is-skip-intro .cover-right,
+#home.is-skip-intro .cover-seal {
+  transition: none !important;
+}
+#home.is-opening .cover-left-wrap,
+#home.is-opened .cover-left-wrap {
+  transform: translateX(-100%);
+}
+#home.is-opening .cover-right,
+#home.is-opened .cover-right {
+  transform: translateX(100%);
+}
+/* Seal theo cánh trái khi mở + mờ dần */
+#home.is-opening .cover-seal,
+#home.is-opened .cover-seal {
+  opacity: 0;
+  transform: translate(62%, -50%) scale(0.94);
+}
+
+/* Kim tuyến vàng quanh thiệp — hạt rõ, nhấp nháy */
+.cover-glitter {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  overflow: hidden;
+  transition: opacity 0.55s ease;
+}
+.cover-spark {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--s, 4px);
+  height: var(--s, 4px);
+  margin: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, #FFF8E7 0%, #E8D5A8 35%, #B99A68 70%, transparent 75%);
+  box-shadow:
+    0 0 6px 1px rgba(232, 213, 168, 0.9),
+    0 0 12px 2px rgba(185, 154, 104, 0.55);
+  animation: cover-spark-twinkle 2.2s ease-in-out infinite;
+  animation-delay: var(--d, 0s);
+  opacity: 0.85;
+}
+.cover-spark::before,
+.cover-spark::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  background: #F5E6C8;
+  border-radius: 1px;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 4px rgba(245, 230, 200, 0.9);
+}
+.cover-spark::before {
+  width: 1px;
+  height: calc(var(--s, 4px) * 2.6);
+}
+.cover-spark::after {
+  width: calc(var(--s, 4px) * 2.6);
+  height: 1px;
+}
+
+#home.is-opening .cover-glitter,
+#home.is-opened .cover-glitter {
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* Màn cao/hẹp: overscan nhẹ từ tâm — vẫn 50/50, không thêm nền màu */
+
+
+/* ===== Lớp intro: nằm sau cánh thiệp — mở ra là thấy luôn ===== */
+.cover-intro {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: #f4f2ef;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.8s ease, visibility 0.8s ease;
+  overflow: hidden;
+}
+.cover-intro-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  z-index: 0;
+}
+.cover-intro.is-active {
+  opacity: 1;
+  visibility: visible;
+  transition: none;
+}
+.cover-intro.is-done {
+  opacity: 0;
+  visibility: hidden;
+}
+.cover-intro-inner {
+  position: relative;
+  z-index: 1;
+  width: min(92%, 480px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(0.85rem, 2.8vh, 1.4rem);
+  text-align: center;
+}
+.intro-line {
+  margin: 0;
+  min-height: 1.15em;
+  color: #B99A68;
+  white-space: nowrap;
+}
+.intro-line.is-typing::after {
+  content: "";
+  display: inline-block;
+  width: 0.06em;
+  height: 0.9em;
+  margin-left: 0.08em;
+  vertical-align: -0.05em;
+  background: #B99A68;
+  animation: intro-caret 0.7s step-end infinite;
+}
+.intro-std {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  width: max-content;
+  max-width: 100%;
+}
+.intro-save,
+.intro-date-word {
+  font-family: "Playfair Display", "Source Serif 4", serif;
+  font-optical-sizing: auto;
+  font-weight: 500;
+  font-style: normal;
+  font-size: clamp(36px, 9vw, 56px);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #B99A68;
+  line-height: 1.1;
+}
+.intro-the {
+  display: block;
+  width: clamp(72px, 22vw, 120px);
+  height: auto;
+  margin: -0.15rem 0;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.45s ease, transform 0.45s ease;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.intro-the.is-shown {
+  opacity: 1;
+  transform: none;
+}
+.intro-date {
+  font-family: "Playfair Display", "Source Serif 4", serif;
+  font-optical-sizing: auto;
+  font-weight: 500;
+  font-style: normal;
+  font-size: clamp(26px, 6.5vw, 38px);
+  letter-spacing: 0.28em;
+  color: #B99A68;
+  margin-top: 0.55rem;
+}
+
+
+/* Cổng chạm — chữ bottom center */
+.cover-gate {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  margin: 0;
+  padding: 0 1rem 8%;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+.cover-gate.is-done {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.cover-gate-text {
+  color: #B99A68;
+  font-size: clamp(30px, calc(5vw + 10px), 38px);
+  letter-spacing: 0.02em;
+  text-align: center;
+  animation: cover-gate-pulse 2.4s ease-in-out infinite;
+  text-shadow: 0 2px 14px rgba(255, 255, 255, 0.45);
+  pointer-events: none;
+}
+
+
+.cover-hint {
+  display: none;
+}
+.cover-open {
+  cursor: default;
+  pointer-events: none;
+}
+
+/* --- cover aspect-ratio --- */
+@media (max-aspect-ratio: 2 / 5) {
+  .cover-panels-fit {
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    transform: scale(1.06);
+    transform-origin: center center;
+  }
+}
+
