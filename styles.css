@@ -2484,13 +2484,11 @@ body.invite-locked .live-book {
 .couple-polaroid img {
   position: absolute;
   left: 6%;
-  right: 6%;
   top: 6%;
-  bottom: 14%;
-  width: auto;
-  height: auto;
-  max-width: none;
+  width: 88%;
+  height: 80%;
   object-fit: cover;
+  object-position: center center;
   display: block;
   border-radius: 1px;
 }
@@ -2527,8 +2525,8 @@ body.invite-locked .live-book {
   z-index: 9;
 }
 .couple-tag-groom {
-  left: 0;
-  bottom: 14%;
+  left: 32px;
+  bottom: 9%;
 }
 .couple-tag-label {
   font-family: "Playfair Display", "Source Serif 4", serif;
