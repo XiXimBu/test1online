@@ -599,15 +599,48 @@ html {
             color: var(--invite-card-ink);
         }
         .invite-cal {
-            width: min(100%, 280px);
-            margin: 0.15rem auto 0;
+            position: relative;
+            width: min(100%, 430px);
+            aspect-ratio: 1353 / 966;
+            margin: 0.55rem auto 0.2rem;
+            padding: 17% 8% 12% 8%;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
             color: var(--invite-card-ink);
+            background-image: url("https://res.cloudinary.com/dai4kn53o/image/upload/v1786620024/lich_zbu2lf.png");
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            background-position: center top;
+        }
+        /* Làm mờ họa tiết ngựa giữa (~30%), không đụng gáy xoắn */
+        .invite-cal::before {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: 54%;
+            width: 62%;
+            height: 68%;
+            transform: translate(-50%, -50%);
+            background: radial-gradient(
+                ellipse at center,
+                rgba(246, 241, 232, 0.3) 0%,
+                rgba(246, 241, 232, 0.3) 58%,
+                transparent 78%
+            );
+            pointer-events: none;
+            z-index: 0;
+        }
+        .invite-cal > * {
+            position: relative;
+            z-index: 1;
         }
         .invite-cal-title {
             margin: 0 0 0.55rem;
             font-family: "Playfair Display", serif;
             font-optical-sizing: auto;
-            font-size: 1rem;
+            font-size: clamp(0.82rem, 3.5vw, 1rem);
             letter-spacing: 0.08em;
             text-transform: uppercase;
             font-weight: 500;
@@ -617,25 +650,32 @@ html {
         .invite-cal-days {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 0.2rem 0.15rem;
+            gap: 0.42rem 0.38rem;
             text-align: center;
+        }
+        .invite-cal-week {
+            margin-bottom: 0.42rem;
         }
         .invite-cal-week span {
             font-family: "Playfair Display", serif;
             font-optical-sizing: auto;
-            font-size: 0.68rem;
+            font-size: clamp(0.58rem, 2.5vw, 0.68rem);
             letter-spacing: 0.04em;
             opacity: 0.72;
+        }
+        .invite-cal-days {
+            flex: 1;
+            align-content: space-evenly;
         }
         .invite-cal-days > span {
             position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 1.85rem;
+            min-height: 1.55rem;
             font-family: "Playfair Display", serif;
             font-optical-sizing: auto;
-            font-size: 0.92rem;
+            font-size: clamp(0.72rem, 3.2vw, 0.9rem);
             font-weight: 500;
             font-style: normal;
             line-height: 1;
