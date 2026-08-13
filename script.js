@@ -427,11 +427,13 @@ function setupCouplePortraits() {
   );
   observer.observe(block);
 
-  // Máy thật: section từng display:none lúc invite-locked → IO hay bỏ lỡ
+  // Máy thật (đặc biệt iOS): section từng display:none → IO hay bỏ lỡ
   window.__revealCouplePortraits = () => {
     requestAnimationFrame(() => {
       checkReveal();
       requestAnimationFrame(checkReveal);
+      setTimeout(checkReveal, 180);
+      setTimeout(checkReveal, 650);
     });
   };
 

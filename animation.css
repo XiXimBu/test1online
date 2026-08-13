@@ -248,6 +248,10 @@
   #couple-portraits.is-in .couple-polaroid {
     opacity: 1;
   }
+  #couple-portraits.is-in .couple-forever,
+  #couple-portraits.is-in .couple-tag {
+    transform: none;
+  }
   #couple-portraits.is-in .couple-polaroid-a {
     transform: rotate(-8deg);
   }

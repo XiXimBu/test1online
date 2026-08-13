@@ -1,7 +1,7 @@
 /* =========================================================
    responsive.css
-   Thiệp max 400px. Dùng @media (không @container) để iOS Safari ổn định.
-   Trên điện thoại viewport ≈ bề rộng thiệp.
+   Cột thiệp max 480px (điện thoại = full width tới 480).
+   Không dùng @container / cqw (WebKit iOS hay lệch).
    ========================================================= */
 
 @media (min-width: 768px) {
@@ -10,12 +10,12 @@
   }
 }
 
-@media (min-width: 401px) {
+@media (min-width: 481px) {
   .invite-shell-bg {
-    width: min(100%, 400px);
+    width: min(100%, 480px);
   }
   .invite-shell {
-    max-width: 400px;
+    max-width: 480px;
     border: none;
     box-shadow: 0 16px 64px rgba(201, 180, 140, 0.4);
   }
