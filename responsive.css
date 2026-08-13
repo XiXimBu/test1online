@@ -211,15 +211,16 @@
     padding-top: 92px;
   }
   .invite-event-label {
-    font-size: clamp(11px, 4.6vw, 15px);
-    letter-spacing: 0;
+    font-size: clamp(14px, 7.2vw, 20px);
+    letter-spacing: -0.03em;
     white-space: nowrap;
     width: 100%;
     text-align: center;
     overflow: visible;
   }
   .invite-ceremony .invite-event-label {
-    font-size: clamp(10px, 4.1vw, 13px);
+    font-size: clamp(13px, 6.6vw, 18px);
+    letter-spacing: -0.04em;
   }
 }
 

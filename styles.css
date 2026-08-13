@@ -532,7 +532,7 @@ html {
             color: var(--invite-card-ink);
         }
         .invite-ceremony .invite-event-label {
-            font-size: clamp(12px, 4.45vw, 26px);
+            font-size: clamp(16px, 5.8vw, 28px);
             letter-spacing: 0;
         }
         .invite-event-time {
