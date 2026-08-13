@@ -530,6 +530,19 @@ body.invite-locked {
   padding-bottom: 0.1rem;
 }
 
+@media (max-width: 480px) {
+  .cover-invite-label {
+    font-weight: 700;
+    font-size: clamp(0.84rem, 3.5vw, 1.05rem);
+    color: #9E7A3A;
+  }
+  .cover-invite-name {
+    font-size: clamp(1.55rem, 8.4vw, 44px);
+    color: #B48A3C;
+    -webkit-text-stroke: 0.45px currentColor;
+  }
+}
+
 #home.is-skip-intro .cover-open,
 #home.is-skip-intro .cover-gate,
 #home.is-skip-intro .cover-intro,

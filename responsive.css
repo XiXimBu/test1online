@@ -21,6 +21,13 @@
   }
 }
 
+@media (max-width: 480px) {
+  .invite-lead {
+    font-weight: 700;
+    font-size: clamp(26px, 7.2vw, 34px);
+  }
+}
+
 @media (max-width: 767px) {
   #rsvp.invite-paper-block,
   #rsvp .invite-paper-layer,
