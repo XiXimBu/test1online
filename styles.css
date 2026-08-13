@@ -1,5 +1,10 @@
 /* Wedding invite styles (extracted from index.html) */
 
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 /* ===== main ===== */
 :root {
             --brand: #F8F7F3;
@@ -121,28 +126,27 @@
         }
         .invite-shell {
             width: 100%;
-            max-width: none;
+            max-width: 400px;
             margin-left: auto;
             margin-right: auto;
             position: relative;
             z-index: 1;
             overflow-x: clip;
-            /* Ép layer trên Android — tránh nền fixed đè lên thiệp */
             isolation: isolate;
             transform: translateZ(0);
             background: transparent;
             box-shadow: 0 16px 48px rgba(201, 180, 140, 0.35);
+            container-type: inline-size;
+            container-name: invite;
             --invite-ink: #9E1A32;
             --invite-ink-muted: #9E1A32;
             --invite-divider: rgba(158, 26, 50, 0.35);
             color: var(--invite-ink);
-            /* Tên cô dâu/chú rể — mặc định = ĐT nhỏ 320–480 */
-            --couple-line-w: min(94vw, 400px);
-            --couple-card-w: min(92%, 320px);
-            --couple-hint-w: min(92%, 320px);
-            --couple-name-size: clamp(16px, 4.8vw, 22px);
-            --couple-name-gap: 0.16em;
-            /* Không nudge ngang trên ĐT — dễ đẩy chữ chìa khỏi màn */
+            --couple-line-w: 100%;
+            --couple-card-w: min(100%, 320px);
+            --couple-hint-w: 100%;
+            --couple-name-size: clamp(15px, 4.6cqw, 20px);
+            --couple-name-gap: 0.12em;
             --couple-nudge-x: 0px;
         }
         .invite-shell .text-secondary {
@@ -2498,7 +2502,7 @@ body.invite-locked .live-book {
   z-index: 9;
 }
 .couple-tag-groom {
-  left: 0;
+  left: 12px;
   bottom: calc(14% - 8px);
   align-items: center;
 }
