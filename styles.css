@@ -428,6 +428,9 @@
             letter-spacing: 0.01em;
             color: var(--invite-card-ink);
         }
+        .invite-lead-line {
+            white-space: nowrap;
+        }
         .invite-couple {
             display: flex;
             flex-direction: column;
@@ -1571,7 +1574,7 @@
 }
 .dress-front {
   position: relative;
-  z-index: 1;
+  z-index: 3;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -1594,7 +1597,7 @@
   position: absolute;
   left: 0;
   bottom: 100px;
-  z-index: 2;
+  z-index: 0;
   display: block;
   width: 192px;
   height: auto;
@@ -2496,7 +2499,7 @@ body.invite-locked .live-book {
 }
 .couple-tag-groom {
   left: 0;
-  bottom: 14%;
+  bottom: calc(14% - 8px);
   align-items: center;
 }
 .couple-tag-label {

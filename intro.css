@@ -283,9 +283,8 @@ body.invite-locked {
   pointer-events: none;
   background: linear-gradient(
     90deg,
-    rgba(72, 56, 40, 0.14) 0%,
-    rgba(72, 56, 40, 0.06) 42%,
-    rgba(72, 56, 40, 0.015) 72%,
+    rgba(72, 56, 40, 0.07) 0%,
+    rgba(72, 56, 40, 0.03) 45%,
     transparent 100%
   );
   opacity: 1;
@@ -306,50 +305,39 @@ body.invite-locked {
   will-change: transform;
   transition: transform 6.5s cubic-bezier(0.19, 0.72, 0.24, 1);
   transform: translateX(0);
-  box-shadow:
-    2px 0 12px rgba(110, 98, 84, 0.06),
-    1px 0 4px rgba(110, 98, 84, 0.04);
 }
 
-/* Mép gấp: highlight sáng + đường seam rất mỏng */
 .cover-left-wrap::before {
   content: "";
   position: absolute;
-  top: 0;
-  right: 0;
-  z-index: 3;
-  width: 1px;
-  height: 100%;
+  inset: 0;
+  z-index: 2;
   pointer-events: none;
-  background: rgba(255, 250, 242, 0.55);
-  box-shadow:
-    -1px 0 0 rgba(255, 252, 246, 0.28),
-    1px 0 0 rgba(90, 70, 50, 0.1);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 252, 245, 0.025) 0%,
+    rgba(255, 252, 245, 0.01) 72%,
+    transparent 100%
+  );
   opacity: 1;
   transition: opacity 0.9s ease;
 }
-
-/* Highlight mép đè + bóng đổ rất nhẹ sang phải */
 .cover-left-wrap::after {
   content: "";
   position: absolute;
   top: 0;
   right: 0;
   z-index: 2;
-  width: calc(var(--cover-overlap) + 12px);
+  width: 18px;
   height: 100%;
   pointer-events: none;
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(255, 252, 245, 0.08) 35%,
-    rgba(255, 255, 255, 0.22) 68%,
-    rgba(255, 255, 255, 0.12) 88%,
-    rgba(80, 60, 42, 0.05) 100%
+    rgba(255, 255, 255, 0.06) 55%,
+    rgba(70, 52, 36, 0.04) 100%
   );
-  box-shadow:
-    3px 0 10px rgba(55, 42, 30, 0.1),
-    1px 0 3px rgba(55, 42, 30, 0.07);
+  box-shadow: 6px 0 14px rgba(55, 42, 30, 0.07);
   opacity: 1;
   transition: opacity 0.9s ease;
 }
@@ -357,36 +345,6 @@ body.invite-locked {
 #home.is-opening .cover-left-wrap::after,
 #home.is-opened .cover-left-wrap::before,
 #home.is-opened .cover-left-wrap::after {
-  opacity: 0;
-}
-
-/* Đường seam / fold trên mép gấp */
-.cover-fold {
-  position: absolute;
-  right: 0;
-  top: 7%;
-  bottom: 7%;
-  width: 2px;
-  z-index: 4;
-  transform: translateX(50%);
-  pointer-events: none;
-  border-radius: 1px;
-  background: linear-gradient(
-    180deg,
-    transparent 0%,
-    rgba(255, 252, 247, 0.4) 14%,
-    rgba(255, 255, 255, 0.58) 50%,
-    rgba(255, 252, 247, 0.4) 86%,
-    transparent 100%
-  );
-  box-shadow:
-    -1px 0 3px rgba(110, 98, 84, 0.09),
-    1px 0 2px rgba(255, 255, 255, 0.32);
-  opacity: 1;
-  transition: opacity 0.9s ease;
-}
-#home.is-opening .cover-fold,
-#home.is-opened .cover-fold {
   opacity: 0;
 }
 
@@ -408,8 +366,7 @@ body.invite-locked {
   position: relative;
   z-index: 1;
   object-position: right center;
-  /* Trái hơi sáng / ấm hơn một chút lúc còn đóng */
-  filter: brightness(1.02) contrast(1.015) saturate(1.03);
+  filter: brightness(1.012) contrast(1.006) saturate(1.008);
   transition: filter 0.9s ease;
 }
 
@@ -426,7 +383,7 @@ body.invite-locked {
     filter 0.9s ease;
   transform: translateX(0);
   /* Phải hơi tối / sepia nhẹ → lệch màu/texture rất nhỏ */
-  filter: brightness(0.975) sepia(0.04) saturate(0.94) contrast(0.99);
+  filter: brightness(0.988) saturate(0.99);
 }
 .cover-right::before {
   content: "";
