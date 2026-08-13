@@ -131,13 +131,10 @@ html {
             margin-right: auto;
             position: relative;
             z-index: 1;
-            overflow-x: clip;
+            overflow-x: hidden;
             isolation: isolate;
-            transform: translateZ(0);
             background: transparent;
             box-shadow: 0 16px 48px rgba(201, 180, 140, 0.35);
-            container-type: inline-size;
-            container-name: invite;
             --invite-ink: #9E1A32;
             --invite-ink-muted: #9E1A32;
             --invite-divider: rgba(158, 26, 50, 0.35);
@@ -145,7 +142,7 @@ html {
             --couple-line-w: 100%;
             --couple-card-w: min(100%, 320px);
             --couple-hint-w: 100%;
-            --couple-name-size: clamp(15px, 4.6cqw, 20px);
+            --couple-name-size: clamp(15px, 4.6vw, 20px);
             --couple-name-gap: 0.12em;
             --couple-nudge-x: 0px;
         }
@@ -2434,12 +2431,13 @@ body.invite-locked .live-book {
   width: 100%;
   text-align: center;
   margin-bottom: 0.55rem;
+  opacity: 0;
+  transition: opacity 0.85s ease;
 }
 .couple-forever-our {
   margin: 0;
   font-family: "Great Vibes", cursive;
   font-size: clamp(28px, 7.5vw, 40px);
-  font-size: clamp(28px, 7.5cqw, 40px);
   line-height: 1;
   color: #9E1A32;
 }
@@ -2447,7 +2445,6 @@ body.invite-locked .live-book {
   margin: 0.2rem 0 0;
   font-family: "Playfair Display", "Source Serif 4", serif;
   font-size: clamp(16px, 4.4vw, 22px);
-  font-size: clamp(16px, 4.4cqw, 22px);
   letter-spacing: 0.28em;
   text-transform: uppercase;
   font-weight: 600;
@@ -2459,7 +2456,8 @@ body.invite-locked .live-book {
   width: 100%;
   max-width: 100%;
   aspect-ratio: 1 / 0.9;
-  margin-inline: auto;
+  margin-left: auto;
+  margin-right: auto;
 }
 .couple-polaroid {
   position: absolute;
@@ -2474,6 +2472,8 @@ body.invite-locked .live-book {
     0 14px 34px rgba(110, 98, 84, 0.2),
     0 3px 8px rgba(110, 98, 84, 0.1);
   overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.85s ease;
 }
 .couple-polaroid img {
   width: 100%;
@@ -2482,6 +2482,7 @@ body.invite-locked .live-book {
   display: block;
   border-radius: 1px;
 }
+/* Vị trí nghỉ luôn đúng — iOS không được để transform lệch rồi chờ animation */
 .couple-polaroid-a {
   top: 0;
   left: 0;
@@ -2505,6 +2506,8 @@ body.invite-locked .live-book {
   text-align: center;
   max-width: 46%;
   box-sizing: border-box;
+  opacity: 0;
+  transition: opacity 0.85s ease;
 }
 .couple-tag-bride {
   top: 6%;
@@ -2518,7 +2521,6 @@ body.invite-locked .live-book {
 .couple-tag-label {
   font-family: "Playfair Display", "Source Serif 4", serif;
   font-size: clamp(14px, 3.8vw, 17px);
-  font-size: clamp(14px, 3.8cqw, 17px);
   letter-spacing: 0.22em;
   text-transform: uppercase;
   font-weight: 600;
@@ -2529,7 +2531,6 @@ body.invite-locked .live-book {
   font-weight: 400;
   font-style: normal;
   font-size: clamp(26px, 7vw, 34px);
-  font-size: clamp(26px, 7cqw, 34px);
   line-height: 1.1;
   color: #9E1A32;
 }
@@ -2538,28 +2539,30 @@ body.invite-locked .live-book {
   left: 50%;
   top: calc(50% - 18px);
   width: clamp(72px, 22vw, 110px);
-  width: clamp(72px, 22cqw, 110px);
   height: auto;
   transform: translate(-50%, -50%) rotate(22deg);
   z-index: 5;
+  opacity: 0;
   pointer-events: none;
   user-select: none;
   -webkit-user-drag: none;
   filter: drop-shadow(0 8px 14px rgba(110, 98, 84, 0.2));
+  transition: opacity 0.85s ease;
 }
 .couple-khuy {
   position: absolute;
   left: 50%;
   top: 50%;
   width: clamp(58px, 16vw, 78px);
-  width: clamp(58px, 16cqw, 78px);
   height: auto;
   transform: translate(-50%, -50%);
   z-index: 8;
+  opacity: 0;
   pointer-events: none;
   user-select: none;
   -webkit-user-drag: none;
   filter: drop-shadow(0 6px 12px rgba(110, 98, 84, 0.28));
+  transition: opacity 0.85s ease;
 }
 .couple-quote {
   width: 100%;
@@ -2586,51 +2589,29 @@ body.invite-locked .live-book {
   margin-top: 0.2rem;
 }
 
-/* Hiệu ứng vào */
-.couple-forever,
-.couple-tag,
-.couple-flower,
-.couple-khuy {
-  opacity: 0;
-  transform: translateY(18px);
-  will-change: transform, opacity;
-  transition: opacity 0.85s ease, transform 0.95s cubic-bezier(0.22, 0.61, 0.36, 1);
-}
-.couple-polaroid {
-  opacity: 0;
-  will-change: transform, opacity;
-}
-.couple-polaroid-a {
-  transform: translate3d(calc(-115% - 20px), 10px, 0) rotate(-34deg);
-}
-.couple-polaroid-b {
-  transform: translate3d(calc(115% + 20px), 10px, 0) rotate(34deg);
-}
-.couple-flower { transform: translate(-50%, -40%) rotate(22deg); }
-.couple-khuy { transform: translate(-50%, -40%); }
-
 #couple-portraits.is-in .couple-forever,
 #couple-portraits.is-in .couple-tag,
 #couple-portraits.is-in .couple-flower,
-#couple-portraits.is-in .couple-khuy {
+#couple-portraits.is-in .couple-khuy,
+#couple-portraits.is-in .couple-polaroid {
   opacity: 1;
 }
-/* Transform cuối phải có sẵn — không phụ thuộc animation (Safari mobile hay bỏ animation sau display:none) */
-#couple-portraits.is-in .couple-polaroid-a {
-  opacity: 1;
-  transform: rotate(-8deg);
-  animation: couple-roll-in-left 1.15s cubic-bezier(0.22, 0.61, 0.36, 1) 0.12s forwards;
+
+/* Animation chỉ là lớp phủ — vị trí đã đúng từ base transform */
+@media (hover: hover) and (pointer: fine) {
+  #couple-portraits:not(.is-in) .couple-polaroid-a {
+    transform: translate3d(calc(-115% - 20px), 10px, 0) rotate(-34deg);
+  }
+  #couple-portraits:not(.is-in) .couple-polaroid-b {
+    transform: translate3d(calc(115% + 20px), 10px, 0) rotate(34deg);
+  }
+  #couple-portraits.is-in .couple-polaroid-a {
+    animation: couple-roll-in-left 1.15s cubic-bezier(0.22, 0.61, 0.36, 1) 0.12s forwards;
+  }
+  #couple-portraits.is-in .couple-polaroid-b {
+    animation: couple-roll-in-right 1.15s cubic-bezier(0.22, 0.61, 0.36, 1) 0.52s forwards;
+  }
 }
-#couple-portraits.is-in .couple-polaroid-b {
-  opacity: 1;
-  transform: rotate(7deg);
-  animation: couple-roll-in-right 1.15s cubic-bezier(0.22, 0.61, 0.36, 1) 0.52s forwards;
-}
-#couple-portraits.is-in .couple-forever { transform: none; transition-delay: 0.05s; }
-#couple-portraits.is-in .couple-tag-bride { transform: none; transition-delay: 0.55s; }
-#couple-portraits.is-in .couple-flower { transform: translate(-50%, -50%) rotate(22deg); transition-delay: 0.75s; }
-#couple-portraits.is-in .couple-khuy { transform: translate(-50%, -50%); transition-delay: 0.88s; }
-#couple-portraits.is-in .couple-tag-groom { transform: none; transition-delay: 0.95s; }
 
 
 .guestbook-card h4 {
