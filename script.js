@@ -397,18 +397,47 @@ function setupCouplePortraits() {
   const block = document.getElementById("couple-portraits");
   if (!block) return;
 
+  function reveal() {
+    if (block.classList.contains("is-in")) return;
+    block.classList.add("is-in");
+  }
+
+  function isNearView() {
+    if (document.body.classList.contains("invite-locked")) return false;
+    const rect = block.getBoundingClientRect();
+    if (rect.height < 8) return false;
+    const vh = window.innerHeight || document.documentElement.clientHeight;
+    return rect.top < vh * 0.95 && rect.bottom > vh * 0.05;
+  }
+
+  function checkReveal() {
+    if (isNearView()) reveal();
+  }
+
   const observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
-          entry.target.classList.add("is-in");
+          reveal();
           observer.unobserve(entry.target);
         }
       });
     },
-    { threshold: 0.3, rootMargin: "0px 0px -8% 0px" }
+    { threshold: 0.12, rootMargin: "0px 0px -4% 0px" }
   );
   observer.observe(block);
+
+  // Máy thật: section từng display:none lúc invite-locked → IO hay bỏ lỡ
+  window.__revealCouplePortraits = () => {
+    requestAnimationFrame(() => {
+      checkReveal();
+      requestAnimationFrame(checkReveal);
+    });
+  };
+
+  window.addEventListener("scroll", checkReveal, { passive: true });
+  window.addEventListener("resize", checkReveal);
+  document.fonts.ready.then(checkReveal).catch(() => {});
 }
 
 function setupClosingCouple() {
@@ -1230,6 +1259,9 @@ function setupInviteEnvelope() {
     document.body.classList.remove("invite-locked");
     document.documentElement.classList.remove("invite-locked");
     finishOpen();
+    if (typeof window.__revealCouplePortraits === "function") {
+      window.__revealCouplePortraits();
+    }
   }
 
   // Chỉ trượt hai cánh — chưa hiện layout / chưa mở khoá cuộn
