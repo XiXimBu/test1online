@@ -507,8 +507,8 @@ body.invite-locked {
   margin: 0.15rem auto 0;
   padding: 0;
   min-height: 1.35em;
-  width: min(96%, 16rem);
-  font-size: clamp(1.35rem, 6.8vw, 40px);
+  width: min(98%, 18.5rem);
+  font-size: clamp(1.55rem, 9vw, 54px);
   line-height: 1.1;
   letter-spacing: 0.01em;
   color: #C5A059;
@@ -537,9 +537,7 @@ body.invite-locked {
     color: #9E7A3A;
   }
   .cover-invite-name {
-    font-size: clamp(1.55rem, 8.4vw, 44px);
-    color: #B48A3C;
-    -webkit-text-stroke: 0.45px currentColor;
+    font-size: 54px;
   }
 }
 

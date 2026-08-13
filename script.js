@@ -1209,14 +1209,9 @@ function renderCoverGuestNameLines(el, lines) {
 function fitCoverGuestName(el) {
   if (!el || el.classList.contains("is-wrap")) return;
 
-  const maxSize = 44;
+  const maxSize = 54;
   const minSize = 16;
-  el.style.fontSize = "";
-
-  const computed = window.getComputedStyle(el);
-  let size = parseFloat(computed.fontSize) || maxSize;
-  size = Math.min(size, maxSize);
-
+  let size = maxSize;
   el.style.fontSize = `${size}px`;
 
   while (size > minSize && el.scrollWidth > el.clientWidth + 1) {
