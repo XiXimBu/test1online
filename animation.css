@@ -235,6 +235,7 @@
   .couple-polaroid,
   .couple-tag,
   .couple-flower,
+  .couple-khuy,
   .couple-quote {
     transition-duration: 0.01ms !important;
     transition-delay: 0s !important;
@@ -248,6 +249,19 @@
   }
   #couple-portraits.is-in .couple-polaroid-a { transform: rotate(-8deg); }
   #couple-portraits.is-in .couple-polaroid-b { transform: rotate(7deg); }
+  #couple-portraits.is-in .couple-forever,
+  #couple-portraits.is-in .couple-tag {
+    opacity: 1;
+    transform: none;
+  }
+  #couple-portraits.is-in .couple-flower {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(22deg);
+  }
+  #couple-portraits.is-in .couple-khuy {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -2407,14 +2407,16 @@ body.invite-locked .live-book {
   position: relative;
   z-index: 3;
   overflow: hidden;
+  width: 100%;
   margin-top: 1.35rem;
   padding: 0.85rem 0.75rem 1.15rem;
   color: #9E1A32;
+  box-sizing: border-box;
 }
 .couple-layer2 {
   position: absolute;
   left: 50%;
-  top: calc(48% - 5px);
+  top: 48%;
   width: 128%;
   max-width: none;
   height: auto;
@@ -2429,19 +2431,21 @@ body.invite-locked .live-book {
 .couple-forever {
   position: relative;
   z-index: 2;
+  width: 100%;
   text-align: center;
   margin-bottom: 0.55rem;
 }
 .couple-forever-our {
   margin: 0;
-  font-size: clamp(28px, 7.5vw, 40px);
+  font-family: "Great Vibes", cursive;
+  font-size: clamp(28px, 7.5cqw, 40px);
   line-height: 1;
   color: #9E1A32;
 }
 .couple-forever-title {
   margin: 0.2rem 0 0;
   font-family: "Playfair Display", "Source Serif 4", serif;
-  font-size: clamp(16px, 4.4vw, 22px);
+  font-size: clamp(16px, 4.4cqw, 22px);
   letter-spacing: 0.28em;
   text-transform: uppercase;
   font-weight: 600;
@@ -2450,9 +2454,10 @@ body.invite-locked .live-book {
 .couple-stage {
   position: relative;
   z-index: 2;
-  width: min(100%, 480px);
+  width: 100%;
+  max-width: 100%;
   aspect-ratio: 1 / 0.9;
-  margin: 0 auto;
+  margin-inline: auto;
 }
 .couple-polaroid {
   position: absolute;
@@ -2492,23 +2497,25 @@ body.invite-locked .live-book {
   z-index: 4;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
   gap: 0.2rem;
   text-align: center;
+  max-width: 46%;
+  box-sizing: border-box;
 }
 .couple-tag-bride {
   top: 6%;
   right: 0;
-  align-items: center;
   z-index: 9;
 }
 .couple-tag-groom {
-  left: 12px;
-  bottom: calc(14% - 8px);
-  align-items: center;
+  left: 0;
+  bottom: 14%;
 }
 .couple-tag-label {
   font-family: "Playfair Display", "Source Serif 4", serif;
-  font-size: clamp(14px, 3.8vw, 17px);
+  font-size: clamp(14px, 3.8cqw, 17px);
   letter-spacing: 0.22em;
   text-transform: uppercase;
   font-weight: 600;
@@ -2518,7 +2525,7 @@ body.invite-locked .live-book {
   font-family: "Great Vibes", cursive;
   font-weight: 400;
   font-style: normal;
-  font-size: clamp(28px, 7.4vw, 36px);
+  font-size: clamp(26px, 7cqw, 34px);
   line-height: 1.1;
   color: #9E1A32;
 }
@@ -2526,7 +2533,7 @@ body.invite-locked .live-book {
   position: absolute;
   left: 50%;
   top: calc(50% - 18px);
-  width: clamp(72px, 22vw, 110px);
+  width: clamp(72px, 22cqw, 110px);
   height: auto;
   transform: translate(-50%, -50%) rotate(22deg);
   z-index: 5;
@@ -2539,7 +2546,7 @@ body.invite-locked .live-book {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: clamp(58px, 16vw, 78px);
+  width: clamp(58px, 16cqw, 78px);
   height: auto;
   transform: translate(-50%, -50%);
   z-index: 8;
