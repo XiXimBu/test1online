@@ -76,7 +76,6 @@ function setupRsvpForm() {
   const countSelect = document.getElementById("guest-count");
   const guestsField = document.getElementById("rsvp-guests-field");
   const relationSelect = document.getElementById("rsvp-relation");
-  const attendField = document.getElementById("rsvp-attend-field");
   const attendRadios = form.querySelectorAll('input[name="attend"]');
   const submitBtn = form.querySelector(".rsvp-submit");
   const thankYou = document.getElementById("rsvp-thankyou");
@@ -102,16 +101,6 @@ function setupRsvpForm() {
     if (countSelect) {
       if (showGuests) countSelect.setAttribute("required", "required");
       else countSelect.removeAttribute("required");
-    }
-    // Đã chọn → ẩn câu hỏi, chỉ giữ đáp án đã chọn
-    markAskDone(attendField, !!attend);
-    if (attendField) {
-      attendField.querySelectorAll(".rsvp-choice-item").forEach((item) => {
-        const input = item.querySelector("input");
-        const picked = !!attend && input && input.value === attend;
-        item.classList.toggle("is-picked", picked);
-        item.classList.toggle("is-aside", !!attend && !picked);
-      });
     }
   }
 
@@ -1304,6 +1293,40 @@ function setupInviteEnvelope() {
 
   if (gate) {
     gate.addEventListener("click", startFlowFromTap);
+
+    let startX = 0;
+    let startY = 0;
+    let tracking = false;
+
+    function onSwipeStart(x, y) {
+      startX = x;
+      startY = y;
+      tracking = true;
+    }
+
+    function onSwipeEnd(x, y) {
+      if (!tracking) return;
+      tracking = false;
+      const dist = Math.hypot(x - startX, y - startY);
+      if (dist >= 42) startFlowFromTap();
+    }
+
+    gate.addEventListener(
+      "touchstart",
+      (e) => {
+        const t = e.changedTouches[0];
+        if (t) onSwipeStart(t.clientX, t.clientY);
+      },
+      { passive: true }
+    );
+    gate.addEventListener(
+      "touchend",
+      (e) => {
+        const t = e.changedTouches[0];
+        if (t) onSwipeEnd(t.clientX, t.clientY);
+      },
+      { passive: true }
+    );
   } else {
     document.addEventListener(
       "pointerdown",

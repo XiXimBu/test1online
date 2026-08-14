@@ -224,6 +224,18 @@
   }
 }
 
+@media (max-width: 258px) {
+  #couple-portraits .couple-tag-groom {
+    left: 22px;
+  }
+}
+
+@media (max-width: 223px) {
+  #couple-portraits .couple-tag-groom {
+    left: 12px;
+  }
+}
+
 @media (max-width: 243px) {
   .invite-parents {
     display: grid;
@@ -262,6 +274,18 @@
   }
 }
 
+@media (max-width: 213px) {
+  #couple-portraits .couple-tag-bride {
+    max-width: none;
+    overflow: visible;
+  }
+  #couple-portraits .couple-tag-bride .couple-tag-name {
+    white-space: nowrap;
+    overflow: visible;
+    word-break: keep-all;
+  }
+}
+
 @media (max-width: 220px) {
   .invite-couple-name {
     font-size: clamp(17px, 8vw, 22px);
@@ -275,6 +299,10 @@
 @media (max-width: 206px) {
   #couple-portraits .couple-tag-name {
     font-size: clamp(13px, 5.2vw, 17px);
+  }
+  #couple-portraits .couple-tag-bride .couple-tag-name {
+    font-size: clamp(16px, 5.6vw, 20px);
+    white-space: nowrap;
   }
   .invite-lead {
     font-size: clamp(15px, 7.4vw, 20px);

@@ -909,44 +909,6 @@ html {
             transform: translateY(0);
         }
 
-        /* Cuối trang — tên + ngày + lời hân hạnh */
-        #closing-couple .closing-groom,
-        #closing-couple .closing-bride,
-        #closing-couple .closing-amp,
-        #closing-couple .closing-date,
-        #closing-couple .closing-thanks {
-            opacity: 0;
-        }
-        #closing-couple .closing-groom {
-            transform: translate3d(-48px, 0, 0);
-        }
-        #closing-couple .closing-bride {
-            transform: translate3d(48px, 0, 0);
-        }
-        #closing-couple .closing-amp {
-            transform: scale(0.7);
-        }
-        #closing-couple .closing-date,
-        #closing-couple .closing-thanks {
-            display: block;
-            transform: translate3d(0, 36px, 0);
-        }
-        #closing-couple.is-in .closing-groom {
-            animation: closing-from-left 1s cubic-bezier(0.22, 0.61, 0.36, 1) 0.05s forwards;
-        }
-        #closing-couple.is-in .closing-bride {
-            animation: closing-from-right 1s cubic-bezier(0.22, 0.61, 0.36, 1) 0.05s forwards;
-        }
-        #closing-couple.is-in .closing-amp {
-            animation: closing-amp-in 0.7s ease-out 0.35s forwards;
-        }
-        #closing-couple.is-in .closing-date {
-            animation: closing-from-bottom 0.95s cubic-bezier(0.22, 0.61, 0.36, 1) 0.45s forwards;
-        }
-        #closing-couple.is-in .closing-thanks {
-            animation: closing-from-bottom 1.05s cubic-bezier(0.22, 0.61, 0.36, 1) 0.7s forwards;
-        }
-
 
         .paper-section .paper-calendar {
             width: 100%;
@@ -1378,11 +1340,68 @@ html {
             margin-right: auto;
         }
         #closing-couple {
+            position: relative;
             width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            margin-top: 1.5rem;
+            margin-bottom: 0;
+            overflow: hidden;
+            isolation: isolate;
+        }
+        .closing-thanks-photo {
+            display: block;
+            width: 100%;
+            height: min(48vh, 380px);
+            object-fit: cover;
+            object-position: center bottom;
+            pointer-events: none;
+            user-select: none;
+            -webkit-user-drag: none;
+        }
+        .closing-thanks-shade {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            background: linear-gradient(
+                180deg,
+                rgba(20, 16, 14, 0.18) 0%,
+                rgba(20, 16, 14, 0.42) 42%,
+                rgba(20, 16, 14, 0.28) 100%
+            );
+            pointer-events: none;
+        }
+        .closing-thanks-copy {
+            position: absolute;
+            z-index: 2;
+            left: 50%;
+            top: 42%;
+            width: min(88%, 360px);
+            transform: translate(-50%, calc(-50% + 22px));
             text-align: center;
+            color: #fff;
+            text-shadow: 0 2px 16px rgba(0, 0, 0, 0.45);
+            opacity: 0;
+            transition: opacity 0.9s ease, transform 0.9s cubic-bezier(0.22, 0.61, 0.36, 1);
+        }
+        #closing-couple.is-in .closing-thanks-copy {
+            opacity: 1;
+            transform: translate(-50%, -50%);
+        }
+        .closing-thanks-msg {
+            margin: 0;
+            font-family: "Playfair Display", "Source Serif 4", serif;
+            font-size: clamp(13px, 3.6vw, 16px);
+            font-weight: 500;
+            font-style: italic;
+            line-height: 1.55;
+            letter-spacing: 0.01em;
+        }
+        .closing-thanks-script {
+            margin: 0.85rem 0 0;
+            font-family: "Great Vibes", cursive;
+            font-size: clamp(42px, 12vw, 58px);
+            font-weight: 400;
+            line-height: 1.1;
+            color: #fff;
         }
         .footer-couple-name .couple-name {
             display: block;
@@ -1412,6 +1431,7 @@ html {
             position: relative;
             z-index: 1;
             overflow: visible;
+            padding-bottom: 0 !important;
         }
         #lixi-zone {
             width: 100%;
