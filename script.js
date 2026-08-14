@@ -1,5 +1,6 @@
 // Scroll animations + envelope open FX + synced background scroll
 document.addEventListener("DOMContentLoaded", () => {
+  setupInviteType();
   const fadeObserver = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
@@ -29,6 +30,114 @@ document.addEventListener("DOMContentLoaded", () => {
   setupLoveAlbum();
   setupPhotoAlbum();
 });
+
+function getInviteType() {
+  return (new URLSearchParams(window.location.search).get("type") || "")
+    .trim()
+    .toLowerCase();
+}
+
+function setupInviteType() {
+  const type = getInviteType();
+  document.documentElement.dataset.inviteType = type || "default";
+
+  if (type === "nhagai30") {
+    applyBrideSideLayout();
+    const timeEl = document.querySelector("[data-party-time]");
+    if (timeEl) timeEl.textContent = "11:00";
+    return;
+  }
+
+  if (type !== "nhagai29") return;
+
+  applyBrideSideLayout();
+  const timeEl = document.querySelector("[data-party-time]");
+  if (timeEl) timeEl.textContent = "17:00";
+  const weekEl = document.querySelector("[data-party-weekday]");
+  if (weekEl) weekEl.textContent = "Thứ Ba";
+  const dayEl = document.querySelector("[data-party-day]");
+  if (dayEl) dayEl.textContent = "29";
+  const lunar = document.querySelector("[data-party-lunar]");
+  if (lunar) lunar.textContent = "Tức ngày 19 tháng 8 năm Bính Ngọ";
+  const photo = document.querySelector("[data-photo-date]");
+  if (photo) photo.textContent = "29.09";
+  const intro = document.querySelector(".intro-date[data-type]");
+  if (intro) intro.setAttribute("data-type", "29.09.2026");
+  setCalHeart(29);
+}
+
+function applyBrideSideLayout() {
+  const parents = document.querySelector(".invite-parents");
+  if (parents) {
+    const groomHouse = parents.querySelector('[data-house="groom"]');
+    const brideHouse = parents.querySelector('[data-house="bride"]');
+    if (groomHouse && brideHouse) {
+      const line = parents.querySelector(".invite-parents-line");
+      parents.insertBefore(brideHouse, groomHouse);
+      if (line) parents.insertBefore(line, groomHouse);
+      brideHouse.classList.remove("wi-from-right");
+      brideHouse.classList.add("wi-from-left");
+      groomHouse.classList.remove("wi-from-left");
+      groomHouse.classList.add("wi-from-right");
+    }
+  }
+
+  const couple = document.querySelector(".invite-couple");
+  if (couple) {
+    const groomName = couple.querySelector('[data-person="groom"]');
+    const brideName = couple.querySelector('[data-person="bride"]');
+    const and = couple.querySelector(".invite-couple-and");
+    if (groomName && brideName && and) {
+      couple.insertBefore(brideName, groomName);
+      couple.insertBefore(and, groomName);
+    }
+  }
+
+  const place = document.querySelector("[data-party-place]");
+  if (place) {
+    const name = place.querySelector(".invite-place-name");
+    const addr = place.querySelector(".invite-place-addr");
+    const map = place.querySelector(".invite-map-link");
+    if (name) name.textContent = "Nhà máy A40";
+    if (addr) addr.textContent = "phường Dương Nội, Hà Nội";
+    if (map) map.setAttribute("href", "https://maps.app.goo.gl/7TE7hzupD4vv9g9e6");
+  }
+
+  const groomQr = document.getElementById("lixi-board-groom");
+  const brideQr = document.getElementById("lixi-board-bride");
+  if (groomQr) groomQr.hidden = true;
+  if (brideQr) brideQr.hidden = false;
+
+  const relation = document.getElementById("rsvp-relation");
+  if (relation) relation.value = "bride";
+}
+
+function setCalHeart(dayNum) {
+  const box = document.querySelector(".invite-cal-days");
+  if (!box) return;
+  const svg = box.querySelector(".invite-cal-heart");
+  const oldHeart = box.querySelector(".is-heart");
+  const target = box.querySelector(`[data-cal-day="${dayNum}"]`);
+  if (!svg || !target || oldHeart === target) return;
+
+  if (oldHeart) {
+    const oldDay = oldHeart.getAttribute("data-cal-day") || "";
+    const plain = document.createElement("span");
+    plain.setAttribute("data-cal-day", oldDay);
+    plain.textContent = oldDay;
+    oldHeart.replaceWith(plain);
+  }
+
+  const wrap = document.createElement("span");
+  wrap.className = "is-heart";
+  wrap.setAttribute("data-cal-day", String(dayNum));
+  const num = document.createElement("span");
+  num.textContent = String(dayNum);
+  wrap.appendChild(svg);
+  wrap.appendChild(num);
+  const nextTarget = box.querySelector(`[data-cal-day="${dayNum}"]`);
+  if (nextTarget) nextTarget.replaceWith(wrap);
+}
 
 const RSVP_FIREBASE_CONFIG = {
   apiKey: "AIzaSyBe7fYgRshIowUQ8phoPh0nuUXeb47ZXug",
@@ -65,6 +174,7 @@ async function saveRsvpToFirebase(record) {
     attendLabel: record.attend === "yes" ? "Sẽ đến" : "Không đến",
     guests: record.guests,
     note: record.note,
+    inviteType: getInviteType() || "default",
     createdAt: firebase.database.ServerValue.TIMESTAMP,
   });
 }
@@ -679,7 +789,13 @@ function setupCountdown() {
   const secEl = document.getElementById("count-sec");
   if (!dayEl || !hourEl || !minEl || !secEl) return;
 
-  const endAt = new Date("2026-09-29T17:00:00+07:00").getTime();
+  const type = getInviteType();
+  const endAt =
+    type === "nhagai30"
+      ? new Date("2026-09-30T11:00:00+07:00").getTime()
+      : type === "nhagai29"
+        ? new Date("2026-09-29T17:00:00+07:00").getTime()
+        : new Date("2026-09-30T17:00:00+07:00").getTime();
 
   function pad(n) {
     return String(Math.max(0, n)).padStart(2, "0");

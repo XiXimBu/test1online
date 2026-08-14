@@ -4,7 +4,7 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>THIỆP CƯỚI ONLINE TRINH GIANG &amp; HOÀNG HẠNH</title>
-<link rel="stylesheet" href="styles.css?v=20260814thanks2"/>
+<link rel="stylesheet" href="styles.css?v=20260814type"/>
 <link rel="stylesheet" href="responsive.css?v=20260814groom223"/>
 <link rel="stylesheet" href="intro.css?v=20260814swipe"/>
 <link rel="stylesheet" href="animation.css?v=20260813w480"/>
@@ -312,14 +312,14 @@
 <div class="paper-inner relative z-10 invite-card">
 
 <div class="invite-parents">
-<div class="invite-house wi-reveal wi-from-left" style="--wi-delay:0.15s">
+<div class="invite-house wi-reveal wi-from-left" data-house="groom" style="--wi-delay:0.15s">
 <p class="invite-house-label">Nhà trai</p>
 <p class="invite-house-name">Ông. Đài Trinh Chiến</p>
 <p class="invite-house-name">Bà. Chu Thị Quyết</p>
 <p class="invite-house-place">số 11 ngõ 163/29 Phường Tây Tựu - Hà Nội</p>
 </div>
 <div class="invite-parents-line wi-reveal wi-line" style="--wi-delay:0.35s" aria-hidden="true"></div>
-<div class="invite-house wi-reveal wi-from-right" style="--wi-delay:0.25s">
+<div class="invite-house wi-reveal wi-from-right" data-house="bride" style="--wi-delay:0.25s">
 <p class="invite-house-label">Nhà gái</p>
 <p class="invite-house-name">Ông. Nguyễn Văn Bằng</p>
 <p class="invite-house-name">Bà. Hoàng Bích Liên</p>
@@ -330,31 +330,31 @@
 <p class="invite-lead wi-reveal wi-from-top" style="--wi-delay:0.45s"><span class="invite-lead-line">Trân trọng kính mời</span><br/>quý khách tới dự lễ thành hôn</p>
 
 <div class="invite-couple">
-<p class="invite-couple-name wi-reveal wi-from-left" style="--wi-delay:0.6s">Đài Trinh Giang</p>
+<p class="invite-couple-name wi-reveal wi-from-left" data-person="groom" style="--wi-delay:0.6s">Đài Trinh Giang</p>
 <div class="invite-couple-and wi-reveal wi-scale" style="--wi-delay:0.78s" aria-hidden="true">
 <img class="invite-and-img" src="https://res.cloudinary.com/dai4kn53o/image/upload/v1786603122/nhan_ii5vxh.png" alt=""/>
 </div>
-<p class="invite-couple-name wi-reveal wi-from-right" style="--wi-delay:0.68s">Nguyễn Hoàng Hạnh</p>
+<p class="invite-couple-name wi-reveal wi-from-right" data-person="bride" style="--wi-delay:0.68s">Nguyễn Hoàng Hạnh</p>
 <div class="invite-photo-wrap wi-reveal wi-rise" style="--wi-delay:0.92s">
 <figure class="invite-photo-frame">
 <img src="https://res.cloudinary.com/dwryahwiu/image/upload/v1786086703/1786060246585_3741576002241547934_3741576002241547934_ed1a88f9d6c9facffd0590dcd330dabb_c1a2g3.jpg" alt="Hoang Hanh" decoding="async"/>
-<span class="invite-photo-date">30.09</span>
+<span class="invite-photo-date" data-photo-date>30.09</span>
 </figure>
 </div>
 </div>
 
 <div class="invite-event">
 <p class="invite-event-label wi-reveal wi-from-top" style="--wi-delay:1.05s">Tiệc cưới được tổ chức vào lúc</p>
-<p class="invite-event-time wi-reveal wi-scale" style="--wi-delay:1.18s">17:00</p>
-<p class="invite-event-day wi-reveal wi-fade" style="--wi-delay:1.32s">Thứ Tư</p>
+<p class="invite-event-time wi-reveal wi-scale" data-party-time style="--wi-delay:1.18s">17:00</p>
+<p class="invite-event-day wi-reveal wi-fade" data-party-weekday style="--wi-delay:1.32s">Thứ Tư</p>
 </div>
 
 <div class="invite-date">
 <span class="invite-date-side wi-reveal wi-from-left" style="--wi-delay:1.42s">Tháng Chín</span>
-<span class="invite-date-day wi-reveal wi-scale" style="--wi-delay:1.55s">30</span>
+<span class="invite-date-day wi-reveal wi-scale" data-party-day style="--wi-delay:1.55s">30</span>
 <span class="invite-date-side wi-reveal wi-from-right" style="--wi-delay:1.42s">Năm 2026</span>
 </div>
-<p class="invite-lunar wi-reveal wi-fade" style="--wi-delay:1.65s">Tức ngày 20 tháng 8 năm Bính Ngọ</p>
+<p class="invite-lunar wi-reveal wi-fade" data-party-lunar style="--wi-delay:1.65s">Tức ngày 20 tháng 8 năm Bính Ngọ</p>
 
 <div class="invite-cal wi-reveal wi-rise" style="--wi-delay:1.78s" aria-label="Lich thang 9 nam 2026">
 <p class="invite-cal-title">Tháng 9 / 2026</p>
@@ -367,15 +367,16 @@
 <span>7</span><span>8</span><span>9</span><span>10</span><span>11</span><span>12</span><span>13</span>
 <span>14</span><span>15</span><span>16</span><span>17</span><span>18</span><span>19</span><span>20</span>
 <span>21</span><span>22</span><span>23</span><span>24</span><span>25</span><span>26</span><span>27</span>
-<span>28</span><span>29</span>
-<span class="is-heart">
+<span data-cal-day="28">28</span>
+<span data-cal-day="29">29</span>
+<span class="is-heart" data-cal-day="30">
 <svg class="invite-cal-heart" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 21s-6.7-4.35-9.33-8.22C.8 10.4 1.2 7.2 3.6 5.7c1.8-1.12 4.15-.7 5.55.9L12 9.2l2.85-2.6c1.4-1.6 3.75-2.02 5.55-.9 2.4 1.5 2.8 4.7.93 7.08C18.7 16.65 12 21 12 21z"/></svg>
 <span>30</span>
 </span>
 </div>
 </div>
 
-<div class="invite-place wi-reveal wi-from-bottom" style="--wi-delay:1.95s">
+<div class="invite-place wi-reveal wi-from-bottom" data-party-place style="--wi-delay:1.95s">
 <p class="invite-place-label">Tại</p>
 <p class="invite-place-name">Số 11 - ngõ 163/29</p>
 <p class="invite-place-addr">Phường Tây Tựu - Hà Nội</p>
@@ -643,8 +644,7 @@ Gửi xác nhận
 </div>
 </div>
 </article>
-<!-- QR cô dâu — tạm ẩn (dùng cho thiệp riêng)
-<article class="lixi-board is-bride is-open is-horizontal" id="lixi-board-bride" data-lixi-board="bride">
+<article class="lixi-board is-bride is-open is-horizontal" id="lixi-board-bride" data-lixi-board="bride" hidden>
 <div class="lixi-preview-media">
 <img class="lixi-preview-qr" src="https://res.cloudinary.com/dwryahwiu/image/upload/v1786006714/qrcodau_mhdcre.png" alt="QR co dau Hoang Hanh" width="200" height="200"/>
 </div>
@@ -670,7 +670,6 @@ Gửi xác nhận
 </div>
 </div>
 </article>
--->
 </div>
 <p class="font-serif text-xs text-secondary mt-5 tracking-widest uppercase" id="lixi-hint">Quét QR để gửi lời chúc</p>
 <p class="lixi-preview-copied" id="lixi-preview-copied" hidden>Đã sao chép số tài khoản</p>
@@ -733,7 +732,7 @@ Gửi xác nhận
 <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-database-compat.js"></script>
 <script src="guestbook.js?v=20260812stack"></script>
-<script src="script.js?v=20260814swipe"></script>
+<script src="script.js?v=20260814type29"></script>
 <div aria-hidden="true" data-snapdom-sandbox="true" id="snapdom-sandbox" style="position: absolute; left: -9999px; top: -9999px; width: 0px; height: 0px; overflow: hidden;"></div>
 </body></html>
 

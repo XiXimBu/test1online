@@ -1490,6 +1490,9 @@ html {
         .lixi-board.is-open {
             display: flex;
         }
+        .lixi-board[hidden] {
+            display: none !important;
+        }
         .lixi-board.is-groom,
         .lixi-board.is-bride {
             z-index: 2;
