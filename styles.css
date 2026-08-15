@@ -2065,14 +2065,14 @@ body.invite-locked .live-book {
   width: 20px;
   height: 20px;
 }
-.music-fab .music-icon-off {
+.music-fab .music-icon-on {
   display: none;
 }
 .music-fab.is-on .music-icon-on {
-  display: none;
+  display: block;
 }
 .music-fab.is-on .music-icon-off {
-  display: block;
+  display: none;
 }
 
 #guestbook-empty[hidden] {
