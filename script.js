@@ -31,10 +31,22 @@ document.addEventListener("DOMContentLoaded", () => {
   setupPhotoAlbum();
 });
 
+function getInviteParams() {
+  const search = window.location.search || "";
+  const hash = (window.location.hash || "").replace(/^#/, "");
+  const raw = `${search}&${hash}`;
+  const normalized = raw
+    .replace(/^[?#&]+/, "")
+    .replace(/\/+(?=(?:type|name|l2|wrap|open)=)/gi, "&")
+    .replace(/\?/g, "&");
+  return new URLSearchParams(normalized);
+}
+
 function getInviteType() {
-  return (new URLSearchParams(window.location.search).get("type") || "")
+  return (getInviteParams().get("type") || "")
     .trim()
-    .toLowerCase();
+    .toLowerCase()
+    .replace(/[^a-z0-9].*$/, "");
 }
 
 function setupInviteType() {
@@ -1266,7 +1278,7 @@ function setupCoverGuestName() {
   const el = document.getElementById("cover-guest-name");
   if (!el) return;
 
-  const params = new URLSearchParams(window.location.search);
+  const params = getInviteParams();
   const name = decodeInviteParam(params.get("name"));
   if (!name) return;
 
@@ -1396,7 +1408,7 @@ function setupInviteEnvelope() {
     showLayouts();
   }
 
-  if (new URLSearchParams(window.location.search).get("open") === "1") {
+  if (getInviteParams().get("open") === "1") {
     if (gate) gate.classList.add("is-done");
     const intro = document.getElementById("cover-intro");
     if (intro) intro.classList.add("is-done");
