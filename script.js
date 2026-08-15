@@ -49,9 +49,40 @@ function getInviteType() {
     .replace(/[^a-z0-9].*$/, "");
 }
 
+function isBrideInviteType(type) {
+  return String(type || "").indexOf("nhagai") === 0;
+}
+
+function applyInvitePageMeta() {
+  const type = getInviteType();
+  const bride = isBrideInviteType(type);
+  const title = bride
+    ? "THIỆP CƯỚI ONLINE HOÀNG HẠNH & TRINH GIANG"
+    : "THIỆP CƯỚI ONLINE TRINH GIANG & HOÀNG HẠNH";
+  const origin = window.location.origin || "https://thiepcuoigianghanh.vercel.app";
+  const url = bride && type ? `${origin}/?type=${type}` : `${origin}/`;
+
+  document.title = title;
+  const pairs = [
+    ['meta[name="title"]', title],
+    ['meta[itemprop="name"]', title],
+    ['meta[property="og:title"]', title],
+    ['meta[property="og:site_name"]', title],
+    ['meta[property="og:image:alt"]', title],
+    ['meta[name="twitter:title"]', title],
+    ['meta[property="og:url"]', url],
+  ];
+  pairs.forEach(([sel, val]) => {
+    document.querySelectorAll(sel).forEach((el) => el.setAttribute("content", val));
+  });
+  const canon = document.querySelector('link[rel="canonical"]');
+  if (canon) canon.setAttribute("href", url);
+}
+
 function setupInviteType() {
   const type = getInviteType();
   document.documentElement.dataset.inviteType = type || "default";
+  applyInvitePageMeta();
 
   if (type === "nhagai30") {
     applyBrideSideLayout();
