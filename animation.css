@@ -231,22 +231,40 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .invite-slide-card {
+    --wi-wait: 0s;
+  }
   .couple-forever,
   .couple-polaroid,
   .couple-tag,
   .couple-flower,
   .couple-khuy,
-  .couple-quote {
+  .couple-layer2,
+  .couple-quote,
+  .quote-decor4,
+  .dress-decor,
+  .invite-stamp img,
+  .invite-ceremony-rule-mark {
     transition-duration: 0.01ms !important;
     transition-delay: 0s !important;
     animation: none !important;
+  }
+  .quote-decor-block.is-in .quote-decor4,
+  .quote-decor4 {
+    opacity: 0.65;
+    transform: translateY(-50%) scale(1);
   }
   #couple-portraits.is-in .couple-forever,
   #couple-portraits.is-in .couple-tag,
   #couple-portraits.is-in .couple-flower,
   #couple-portraits.is-in .couple-khuy,
-  #couple-portraits.is-in .couple-polaroid {
+  #couple-portraits.is-in .couple-polaroid,
+  #couple-portraits.is-in .couple-layer2 {
     opacity: 1;
+  }
+  #couple-portraits.is-in .couple-layer2 {
+    opacity: 0.92;
+    transform: translate(-50%, -50%) scale(1);
   }
   #couple-portraits.is-in .couple-forever,
   #couple-portraits.is-in .couple-tag {
@@ -259,10 +277,20 @@
     transform: rotate(7deg);
   }
   #couple-portraits.is-in .couple-flower {
-    transform: translate(-50%, -50%) rotate(22deg);
+    transform: translate(-50%, -50%) rotate(22deg) scale(1);
   }
   #couple-portraits.is-in .couple-khuy {
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%) scale(1);
+  }
+  #dress-code:has(.section-title-fade.is-in) .dress-decor,
+  .dress-decor {
+    opacity: 0.88;
+    transform: translateX(-50%) rotate(10deg) scale(1);
+  }
+  .invite-stamp img,
+  .invite-ceremony-rule-mark {
+    opacity: 1;
+    transform: none;
   }
 }
 

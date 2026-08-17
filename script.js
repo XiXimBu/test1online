@@ -13,6 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
   );
   document.querySelectorAll(".fade-in-up").forEach((el) => fadeObserver.observe(el));
 
+  setupInviteScrollReveal();
   setupSlideCards();
   setupSectionTitleFade();
   setupCouplePortraits();
@@ -573,53 +574,128 @@ function setupSectionTitleFade() {
   titles.forEach((title) => observer.observe(title));
 }
 
+function setupInviteScrollReveal() {
+  let originY = 0;
+  let armed = false;
+  let scrolled = false;
+
+  function arm() {
+    originY = window.scrollY || document.documentElement.scrollTop || 0;
+    armed = true;
+    scrolled = false;
+  }
+
+  function hasScrolled() {
+    if (!armed) return false;
+    if (document.body.classList.contains("invite-locked")) return false;
+    if (scrolled) return true;
+    const y = window.scrollY || document.documentElement.scrollTop || 0;
+    if (Math.abs(y - originY) > 36) {
+      scrolled = true;
+      return true;
+    }
+    return false;
+  }
+
+  window.__armInviteScrollReveal = arm;
+  window.__hasInviteScrolled = hasScrolled;
+
+  window.addEventListener(
+    "scroll",
+    () => {
+      if (hasScrolled()) window.dispatchEvent(new Event("invite-scrolled"));
+    },
+    { passive: true }
+  );
+}
+
+function canPlayInviteFx() {
+  if (document.body.classList.contains("invite-locked")) return false;
+  return typeof window.__hasInviteScrolled === "function"
+    ? window.__hasInviteScrolled()
+    : true;
+}
+
 function setupCouplePortraits() {
   const block = document.getElementById("couple-portraits");
-  if (!block) return;
+  const quote = document.querySelector(".quote-decor-block");
+  if (!block && !quote) return;
 
-  function reveal() {
-    if (block.classList.contains("is-in")) return;
-    block.classList.add("is-in");
-  }
-
-  function isNearView() {
-    if (document.body.classList.contains("invite-locked")) return false;
-    const rect = block.getBoundingClientRect();
+  function inView(el) {
+    if (!el) return false;
+    const rect = el.getBoundingClientRect();
     if (rect.height < 8) return false;
     const vh = window.innerHeight || document.documentElement.clientHeight;
-    return rect.top < vh * 0.95 && rect.bottom > vh * 0.05;
+    return rect.top < vh * 0.92 && rect.bottom > vh * 0.12;
   }
 
-  function checkReveal() {
-    if (isNearView()) reveal();
+  function reveal() {
+    if (!canPlayInviteFx()) return;
+    if (quote && inView(quote)) quote.classList.add("is-in");
+    if (block && inView(block)) block.classList.add("is-in");
+  }
+
+  if (block) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) reveal();
+        });
+      },
+      { threshold: 0.16, rootMargin: "0px 0px -10% 0px" }
+    );
+    observer.observe(block);
+  }
+
+  if (quote) {
+    const quoteObs = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) reveal();
+        });
+      },
+      { threshold: 0.2, rootMargin: "0px 0px -12% 0px" }
+    );
+    quoteObs.observe(quote);
+  }
+
+  window.addEventListener("invite-scrolled", reveal);
+  window.addEventListener("scroll", reveal, { passive: true });
+}
+
+function setupSlideCards() {
+  const cards = document.querySelectorAll(".invite-slide-card");
+  if (!cards.length) return;
+
+  function revealCard(card) {
+    if (!canPlayInviteFx() || !card || card.classList.contains("is-in")) return;
+    const rect = card.getBoundingClientRect();
+    const vh = window.innerHeight || document.documentElement.clientHeight;
+    if (rect.top < vh * 0.88 && rect.bottom > vh * 0.18) {
+      card.classList.add("is-in");
+    }
   }
 
   const observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          reveal();
-          observer.unobserve(entry.target);
-        }
+        if (entry.isIntersecting) revealCard(entry.target);
       });
     },
-    { threshold: 0.12, rootMargin: "0px 0px -4% 0px" }
+    { threshold: 0.16, rootMargin: "0px 0px -12% 0px" }
   );
-  observer.observe(block);
 
-  // Máy thật (đặc biệt iOS): section từng display:none → IO hay bỏ lỡ
-  window.__revealCouplePortraits = () => {
-    requestAnimationFrame(() => {
-      checkReveal();
-      requestAnimationFrame(checkReveal);
-      setTimeout(checkReveal, 180);
-      setTimeout(checkReveal, 650);
-    });
-  };
-
-  window.addEventListener("scroll", checkReveal, { passive: true });
-  window.addEventListener("resize", checkReveal);
-  document.fonts.ready.then(checkReveal).catch(() => {});
+  cards.forEach((card) => observer.observe(card));
+  window.addEventListener("invite-scrolled", () => {
+    cards.forEach((card) => revealCard(card));
+  });
+  window.addEventListener(
+    "scroll",
+    () => {
+      cards.forEach((card) => revealCard(card));
+    },
+    { passive: true }
+  );
 }
 
 function setupClosingCouple() {
@@ -757,25 +833,6 @@ function setupPhotoAlbum() {
     },
     { passive: true }
   );
-}
-
-function setupSlideCards() {
-  const cards = document.querySelectorAll(".invite-slide-card");
-  if (!cards.length) return;
-
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-
-          entry.target.classList.add("is-in");
-        }
-      });
-    },
-    { threshold: 0.12, rootMargin: "0px 0px -8% 0px" }
-  );
-
-  cards.forEach((card) => observer.observe(card));
 }
 
 function setupHeroSlider() {
@@ -1431,8 +1488,8 @@ function setupInviteEnvelope() {
     document.body.classList.remove("invite-locked");
     document.documentElement.classList.remove("invite-locked");
     finishOpen();
-    if (typeof window.__revealCouplePortraits === "function") {
-      window.__revealCouplePortraits();
+    if (typeof window.__armInviteScrollReveal === "function") {
+      window.__armInviteScrollReveal();
     }
   }
 
