@@ -83,21 +83,31 @@ function getInvitePageTitle() {
   return name ? `Kính mời ${name} | ${wedding}` : wedding;
 }
 
+function getInviteShareTitle() {
+  const name = getGuestInviteName();
+  return name ? `Kính mời ${name}` : getCoupleWeddingTitle(getInviteType());
+}
+
 function applyInvitePageMeta() {
   const type = getInviteType();
   const wedding = getCoupleWeddingTitle(type);
   const title = getInvitePageTitle();
+  const shareTitle = getInviteShareTitle();
   const origin = window.location.origin || "https://thiepcuoigianghanh.vercel.app";
   const url = `${origin}/${window.location.search || ""}`;
 
   document.title = title;
   const pairs = [
-    ['meta[name="title"]', title],
-    ['meta[itemprop="name"]', title],
-    ['meta[property="og:title"]', title],
-    ['meta[property="og:site_name"]', wedding],
+    ['meta[name="title"]', shareTitle],
+    ['meta[name="description"]', wedding],
+    ['meta[itemprop="name"]', shareTitle],
+    ['meta[itemprop="description"]', wedding],
+    ['meta[property="og:title"]', shareTitle],
+    ['meta[property="og:description"]', wedding],
+    ['meta[property="og:site_name"]', "Giang & Hạnh"],
     ['meta[property="og:image:alt"]', wedding],
-    ['meta[name="twitter:title"]', title],
+    ['meta[name="twitter:title"]', shareTitle],
+    ['meta[name="twitter:description"]', wedding],
     ['meta[property="og:url"]', url],
   ];
   pairs.forEach(([sel, val]) => {
