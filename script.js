@@ -53,22 +53,50 @@ function isBrideInviteType(type) {
   return String(type || "").indexOf("nhagai") === 0;
 }
 
+function decodeInviteParam(value) {
+  if (!value) return "";
+  let text = String(value).replace(/\+/g, " ").trim();
+  try {
+    text = decodeURIComponent(text);
+  } catch {
+    return text;
+  }
+  return text.trim();
+}
+
+function getGuestInviteName() {
+  return decodeInviteParam(getInviteParams().get("name"))
+    .replace(/~/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function getCoupleWeddingTitle(type) {
+  return isBrideInviteType(type)
+    ? "HOÀNG HẠNH & TRINH GIANG WEDDING"
+    : "TRINH GIANG & HOÀNG HẠNH WEDDING";
+}
+
+function getInvitePageTitle() {
+  const wedding = getCoupleWeddingTitle(getInviteType());
+  const name = getGuestInviteName();
+  return name ? `Kính mời ${name} | ${wedding}` : wedding;
+}
+
 function applyInvitePageMeta() {
   const type = getInviteType();
-  const bride = isBrideInviteType(type);
-  const title = bride
-    ? "THIỆP CƯỚI ONLINE HOÀNG HẠNH & TRINH GIANG"
-    : "THIỆP CƯỚI ONLINE TRINH GIANG & HOÀNG HẠNH";
+  const wedding = getCoupleWeddingTitle(type);
+  const title = getInvitePageTitle();
   const origin = window.location.origin || "https://thiepcuoigianghanh.vercel.app";
-  const url = bride && type ? `${origin}/?type=${type}` : `${origin}/`;
+  const url = `${origin}/${window.location.search || ""}`;
 
   document.title = title;
   const pairs = [
     ['meta[name="title"]', title],
     ['meta[itemprop="name"]', title],
     ['meta[property="og:title"]', title],
-    ['meta[property="og:site_name"]', title],
-    ['meta[property="og:image:alt"]', title],
+    ['meta[property="og:site_name"]', wedding],
+    ['meta[property="og:image:alt"]', wedding],
     ['meta[name="twitter:title"]', title],
     ['meta[property="og:url"]', url],
   ];
@@ -1292,17 +1320,6 @@ function setupBackgroundScroll() {
     if (mainShell) ro.observe(mainShell);
     if (bgShell) ro.observe(bgShell);
   }
-}
-
-function decodeInviteParam(value) {
-  if (!value) return "";
-  let text = value.replace(/\+/g, " ").trim();
-  try {
-    text = decodeURIComponent(text);
-  } catch {
-    return "";
-  }
-  return text.trim();
 }
 
 function setupCoverGuestName() {
